@@ -40,7 +40,7 @@ This homework is to propose an innovative project and describe the key features,
 
 ### 系統方塊圖
 ![](https://github.com/rkuo2000/MCU-course/blob/main/images/FutureHome_kitchen_robot.png?raw=true)
-![](https://github.com/rkuo2000/MCU-course/blob/main/images/FutureHome_kitchen_robot.png?raw=true)
+![](https://github.com/kaoethan/MCU-project/blob/main/images/3DPW_Mega2560_RAMPS14_A4988_LCD.png?raw=true)
 
 ---
 ## Market Analysis (市場分析)
