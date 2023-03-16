@@ -31,10 +31,10 @@ This homework is to propose an innovative project and describe the key features,
 
 **所需相關技術：**
 
-### 系統方塊圖
+### 示意圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/image.png?raw=true)
 
-### 影片
+### 系統方塊圖
 
 ---
 
