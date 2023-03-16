@@ -32,7 +32,7 @@ This homework is to propose an innovative project and describe the key features,
 **所需相關技術：**
 
 ### 系統方塊圖
-![](https://projects.arduinocontent.cc/6a536e53-3e78-4c1f-9b60-2a10ebe4e82e.gif)
+![](https://github.com/kaoethan/MCU-project/blob/main/images/image.png?raw=true)
 
 ### 影片
 
