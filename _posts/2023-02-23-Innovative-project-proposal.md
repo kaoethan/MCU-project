@@ -27,6 +27,7 @@ This homework is to propose an innovative project and describe the key features,
 
 ### 設計考量與相關技術
 **系統設計考量：**<br>
+供電:arduino uno
 
 
 **所需相關技術：**
