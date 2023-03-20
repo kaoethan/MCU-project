@@ -32,6 +32,8 @@ This homework is to propose an innovative project and describe the key features,
 
 
 **所需相關技術：**
+心律檢測:MAX30102
+顯示器與蜂鳴器指示:Adafruit OLED and Buzzer
 
 
 ### 示意圖
