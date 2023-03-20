@@ -28,7 +28,7 @@ This homework is to propose an innovative project and describe the key features,
 ### 設計考量與相關技術
 **系統設計考量：**<br>
 供電:arduino uno
-操作方式 :手放上去 心臟會跳
+操作方式 :手放上去  經由感測器檢測 由顯示器顯示結果 並且心臟要會跳
 
 
 **所需相關技術：**
@@ -38,6 +38,7 @@ This homework is to propose an innovative project and describe the key features,
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/image.png?raw=true)
 
 ### 系統方塊圖
+![image](https://user-images.githubusercontent.com/126166559/226336201-a09cd417-e16b-4aa3-b217-345d3f497aec.png)
 
 ---
 
