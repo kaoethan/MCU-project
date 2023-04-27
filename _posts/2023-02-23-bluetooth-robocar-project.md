@@ -24,27 +24,27 @@ This project is to implement a bluetooth remote controlled robotcar.
 3. 供電方式:鋰電池 3.7V x2
 4. 聯網方式:藍牙
 
-**所需相關技術：**
+**所需相關技術：**<br>
 1. MIT App Inventor 2 手機程式設計 
 2. Arduino程式設計
 
-**所需相關套件:**
+**所需相關套件:**<br>
 ![](https://image.ruten.com.tw/g2/8/d4/16/21440347657238_872.jpg)
 
-### 系統方塊圖
+### 系統方塊圖<br>
 ![](https://github.com/kaoethan/MCU-project/blob/9d890438dc44c03eb1a90674badd54cb36c81e94/images/WebUI_car.jpg)
 
 成果展示
-**Right：**
+**Right：**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/57c31d0fd87268e03a1428ad840dba83f3be31e8/images/right.gif)
 
-**Left：**
+**Left：**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/57c31d0fd87268e03a1428ad840dba83f3be31e8/images/left.gif)
 
-**Forword and stop：**
+**Forword and stop：**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/57c31d0fd87268e03a1428ad840dba83f3be31e8/images/forward_stop.gif)
 
-**back：**
+**back：**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/57c31d0fd87268e03a1428ad840dba83f3be31e8/images/back.gif)
 <br>
 <br>
