@@ -1,7 +1,7 @@
 
 ## ESP32 IoT webserver & client作業
 IoT webserver & client初始操作<br>
-**將網頁構建好**<br>
+
 將作為接受器的esp32寫入以下程式<br>
 **esp32接受程式**<br>
 ```
@@ -231,13 +231,10 @@ void loop() {
 **將發射器連接HTU21D**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/ae5f1a502bdcec01aaf03e9ce05f79128da69e61/images/HTU21D-with-ESP32-connection-diagram.jpg)
 **成果展示**<br>
-
-![](![image](https://user-images.githubusercontent.com/126166559/236658452-fc6d190f-78f3-418b-9220-9ce2b44ab597.png)
-)
+![](https://github.com/kaoethan/MCU-project/blob/main/images/abcd.PNG?raw=true)
 
 **序列埠狀態對比**<br>
-![](![image](https://user-images.githubusercontent.com/126166559/236658273-b1642e97-e152-4851-8255-c5acf06693c4.png)
-)
+![](https://github.com/kaoethan/MCU-project/blob/main/images/messageImage_1683434302567.jpg?raw=true)
 **實作**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/S__9175049.jpg?raw=true)
 *This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
