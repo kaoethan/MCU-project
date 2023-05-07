@@ -131,7 +131,7 @@ void loop() {
   server.handleClient();
 }
 ```
-將作為發射器的esp32連接HTU21D寫入以下程式
+將作為發射器的esp32連接HTU21D寫入以下程式<br>
 **ESP32傳送訊號程式**<br>
 
 ```
