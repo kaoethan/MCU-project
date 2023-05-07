@@ -230,8 +230,14 @@ void loop() {
 ```
 **將發射器連接HTU21D**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/ae5f1a502bdcec01aaf03e9ce05f79128da69e61/images/HTU21D-with-ESP32-connection-diagram.jpg)
+**成果展示**<br>
+
+![](![image](https://user-images.githubusercontent.com/126166559/236658452-fc6d190f-78f3-418b-9220-9ce2b44ab597.png)
+)
 
 **序列埠狀態對比**<br>
-![](https://github.com/kaoethan/MCU-project/blob/ae5f1a502bdcec01aaf03e9ce05f79128da69e61/images/HTU21D-with-ESP32-connection-diagram.jpg)
-
+![](![image](https://user-images.githubusercontent.com/126166559/236658273-b1642e97-e152-4851-8255-c5acf06693c4.png)
+)
+**實作**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/S__9175049.jpg?raw=true)
 *This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
