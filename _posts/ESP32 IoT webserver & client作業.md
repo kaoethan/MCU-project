@@ -228,6 +228,10 @@ void loop() {
   delay(1*60*100);
 }
 ```
-將發射器連接HTU21D
-![]()
+**將發射器連接HTU21D**<br>
+![](https://github.com/kaoethan/MCU-project/blob/ae5f1a502bdcec01aaf03e9ce05f79128da69e61/images/HTU21D-with-ESP32-connection-diagram.jpg)
+
+**序列埠狀態對比**<br>
+![](https://github.com/kaoethan/MCU-project/blob/ae5f1a502bdcec01aaf03e9ce05f79128da69e61/images/HTU21D-with-ESP32-connection-diagram.jpg)
+
 *This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
