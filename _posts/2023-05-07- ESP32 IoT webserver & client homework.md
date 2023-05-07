@@ -3,6 +3,7 @@ IoT webserver & client初始操作<br>
 
 將作為接受器的esp32寫入以下程式<br>
 **esp32接受程式**<br>
+```
 //
 // ESP32 Webserver to receive data from Webclients
 // To use a web browser to open IP address of this webserver 
@@ -128,9 +129,10 @@ void setup() {
 void loop() {
   server.handleClient();
 }
+```
 將作為發射器的esp32連接HTU21D寫入以下程式
 **ESP32傳送訊號程式**<br>
-
+```
 // Webclient to read HTU21DF and send data to Webserver
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -223,6 +225,7 @@ void loop() {
   //system_deep_sleep(1 * 60 * 1000000);
   delay(1*60*100);
 }
+```
 **將發射器連接HTU21D**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/ae5f1a502bdcec01aaf03e9ce05f79128da69e61/images/HTU21D-with-ESP32-connection-diagram.jpg)
 **成果展示**<br>
