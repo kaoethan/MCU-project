@@ -36,7 +36,7 @@ This project is to implement a bluetooth remote controlled robotcar.
 
 成果展示
 **Right：**<br>
-![](ttps://github.com/kaoethan/MCU-project/blob/main/images/right.gif?raw=true)
+![](https://github.com/kaoethan/MCU-project/blob/main/images/right.gif?raw=true)
 
 **Left：**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/left.gif?raw=true)
