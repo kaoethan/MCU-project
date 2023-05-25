@@ -10,7 +10,7 @@ tags: [IMU]
 
 **將以上程式燒入esp32**
 ## 成果展示
-![](https://github.com/Ian1121023/MCU-project/blob/main/images/KalmanFilter.gif?raw=true)<br>
+![](https://github.com/Ian1121023/MCU-project/blob/main/images/esp32_oxi.gif?raw=true)<br>
 <br>
 <br>
 *This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
