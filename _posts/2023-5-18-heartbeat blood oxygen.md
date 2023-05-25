@@ -6,7 +6,7 @@ category: [Lecture]
 tags: [IMU]
 ---
 ## 心跳血氧感測器
-### [Arduino程式](https://github.com/Ian1121023/Arduino/blob/master/examples/IMU/MPU6050_DMP6_Teapot/MPU6050_DMP6_Teapot.ino)
+### [Arduino程式][https://github.com/rkuo2000/arduino/blob/master/examples/Sensors/MAX30102_OLED_BPM/MAX30102_OLED_BPM.ino]()
 
 **將以上程式燒入esp32**
 ## 成果展示
