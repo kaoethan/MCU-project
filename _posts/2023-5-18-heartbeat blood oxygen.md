@@ -5,6 +5,8 @@ author: [Yian Chang]
 category: [Lecture]
 tags: [IMU]
 ---
+### 接線示意圖
+![](https://github.com/Ian1121023/MCU-project/blob/main/images/ESP32_OLED_BPM.jpg?raw=true)<br>
 ## 心跳血氧感測器
 ### [Arduino程式](https://github.com/rkuo2000/arduino/blob/master/examples/Sensors/MAX30102_OLED_BPM/MAX30102_OLED_BPM.ino)
 
