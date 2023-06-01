@@ -15,6 +15,9 @@
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/S__9175049.jpg?raw=true)
 <br>
 <br>
+## 方塊圖<br>
+
+![](https://github.com/kaoethan/MCU-project/blob/main/images/350381818_210765445130630_7229708857465703230_n.png?raw=true)
 ### 程式碼<br>
 
 ```
