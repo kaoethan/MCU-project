@@ -2,6 +2,8 @@
 IoT webserver & client初始操作<br>
 
 將作為接受器的esp32寫入以下程式<br>
+**方塊圖**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/messageImage_1685623122548.jpg?raw=true)<br>
 **esp32接受程式**<br>
 ```
 //
