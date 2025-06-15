@@ -176,7 +176,7 @@ PAM8403 是一款低功耗、高效率的 D 類音訊放大器晶片，可提供
 <br>
 ## 編碼設計流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
-## 提示詞<br>
+## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
 1) examples> AmebaQR> QRCodeScanner(這是AMB82-MINI 上使用 QR Code 掃描的 Arduino 範例)<br>
