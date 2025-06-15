@@ -69,6 +69,37 @@ PF5（SPI1_MISO）、PF6（SPI1_SCLK）、PF7（SPI1_MOSI）、PF8（SPI1_SS）�
  <br>
 **I2C（Inter-Integrated Circuit)** <br>
 I2C 為雙線式同步通訊協定，可連接多個從屬裝置如感測器、OLED 等。AMB82-Mini 提供兩組 I2C 介面。 <br>
+**應用實例:** <br>
+•	連接 MPU6050 姿態感測器<br>
+•	讀取 SHT31 溫濕度感測值<br>
+•	多感測模組串接（透過 TCA9548 擴展）<br>
+**對應腳位:** <br>
+PF2（I2C1_SDA）、PF1（I2C1_SCL）、PA1（I2C2_SDA）、PA0（I2C2_SCL）、PE4（I2C_SDA）、PE3（I2C_SCL）<br>
+<br>
+**SWD（Serial Wire Debug）** <br>
+SWD 為 ARM Cortex-M 的單線除錯介面，用於實現斷點、變數觀察與即時燒錄。適合進行嵌入式除錯與韌體開發。<br>
+**應用實例:** <br>
+•	使用 J-Link 進行即時中斷除錯<br>
+•	使用 OpenOCD 觀察變數、設定斷點<br>
+•	韌體 OTA 更新前進行 low-level debug<br>
+**對應腳位:** <br>
+PA0（SWD_DATA）、PA1（SWD_CLK）<br>
+注意：若啟用 SWD 模式，A4/A5 與 I2C2 將無法同時使用。<br>
+<br>
+**LED（On-Board LED Control）** <br>
+板載 LED 可作為系統執行狀態、網路連線、錯誤警告等視覺提示，亦可當作普通 GPIO 控制。<br>
+**應用實例:** <br>
+•	網路連線成功後綠燈閃爍<br>
+•	辨識結果語音播放時藍燈同步閃爍<br>
+•	錯誤發生時 LED 閃爍提示<br>
+**對應腳位:** <br>
+PF9：LED_BUILTIN / LED_B（藍燈）、PE6：LED_G（綠燈）<br>
+##  ILI9341 TFT LCD 硬體介紹<br>
+ILI9341 是一款廣泛應用於嵌入式系統的 2.4 吋/2.8 吋彩色 TFT LCD 顯示模組，搭載 240×320 像素解析度 與 SPI 通訊介面。該模組內建 ILI9341 顯示驅動 IC，支援 262K 色彩顯示與圖形加速功能，能夠顯示影像、文字、圖形介面，常見於智慧手持裝置、嵌入式儀表與 IoT 應用。<br>
+**ILI9341 TFT LCD實體外觀圖**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/LCD1.jpg?raw=true)<br>
+**AMB82 MINI and QVGA TFT LCD 接線圖**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/LCD2.jpg?raw=true)<br>
 ## 編碼設計流程圖<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
 ## 提示詞<br>
