@@ -361,14 +361,15 @@ void sdPlayMP3(String filename)
     fs.end();
 }
 ```
-(這是AMB82-mini在arduino上偵測情緒的範例)<br>
-2) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
-3) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
+(這是AMB82-mini在arduino上利用genai偵測情緒的範例)<br>
+2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
+3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
+4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
 1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard <br>
 2. play MP3 file<br>
-3.顯示gemini的回覆及播放的MP檔名<br>
+3.顯示gemini的回覆及播放的MP檔名在顯示器上<br>
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
 ## arduino程式碼
 ```
 #include <WiFi.h>
