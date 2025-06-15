@@ -51,6 +51,24 @@ PF6、PF7、PF8、PF9（LED_B）、PF12、PF13<br>
 <br>
 **UART（Universal Asynchronous Receiver/Transmitter）** <br>
 UART 為非同步序列通訊，提供開發板與外部裝置（如藍牙模組、GPS、PC）之間的資料傳輸。AMB82-Mini 支援多組 UART（Serial1–3、LOG）。<br>
+**應用實例:** <br>
+•	與電腦透過 LOG_TX/RX 傳送 debug 資訊 <br>
+•	與 HC-05 藍牙模組資料傳輸 <br>
+•	接收 GPS 定位資訊 <br>
+**對應腳位:** <br>
+PA2（SERIAL1_TX）、PA3（SERIAL1_RX）、PD15（SERIAL2_TX）、PD16（SERIAL2_RX）、PE1（SERIAL3_TX）、PE2（SERIAL3_RX）、PF4（LOG_TX）、PF3（LOG_RX）<br>
+<br>
+**SPI（Serial Peripheral Interface）** <br>
+SPI 為同步序列通訊，速度快，適用於 TFT 顯示器、SD 卡、Flash 等高速裝置。AMB82-Mini 提供兩組 SPI，包含 SPI 與 SPI1。 <br>
+**應用實例:** <br>
+•	控制 ILI9341 TFT LCD 顯示畫面<br>
+•	儲存影像資料至 MicroSD 卡模組<br>
+•	外接 Flash 記憶體儲存語音模型<br>
+**對應腳位:** <br>
+PF5（SPI1_MISO）、PF6（SPI1_SCLK）、PF7（SPI1_MOSI）、PF8（SPI1_SS）、PE3（SPI_MOSI）、PE2（SPI_MISO）、PE1（SPI_SCLK）、PE4（SPI_SS） <br>
+ <br>
+**I2C（Inter-Integrated Circuit)** <br>
+I2C 為雙線式同步通訊協定，可連接多個從屬裝置如感測器、OLED 等。AMB82-Mini 提供兩組 I2C 介面。 <br>
 ## 編碼設計流程圖<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
 ## 提示詞<br>
