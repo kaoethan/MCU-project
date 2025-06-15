@@ -9,7 +9,7 @@ tags: [jekyll, ai]
 This project uses QR code to play audio to assist blind people in navigation.
 
 ---
-## AMB82-mini 硬體介紹<br>
+## AMB82-mini 硬體介紹
 **系統架構圖**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/AMB82-MINI.JPG?raw=true)<br>
 **•	AMB82-mini**：具備雙核心 CPU 及 Wi-Fi 功能，支援 TensorFlow Lite Micro 與 OpenAI API。<br>
@@ -96,11 +96,85 @@ PA0（SWD_DATA）、PA1（SWD_CLK）<br>
 PF9：LED_BUILTIN / LED_B（藍燈）、PE6：LED_G（綠燈）<br>
 ##  ILI9341 TFT LCD 硬體介紹<br>
 ILI9341 是一款廣泛應用於嵌入式系統的 2.4 吋/2.8 吋彩色 TFT LCD 顯示模組，搭載 240×320 像素解析度 與 SPI 通訊介面。該模組內建 ILI9341 顯示驅動 IC，支援 262K 色彩顯示與圖形加速功能，能夠顯示影像、文字、圖形介面，常見於智慧手持裝置、嵌入式儀表與 IoT 應用。<br>
+<br>
 **ILI9341 TFT LCD實體外觀圖**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/LCD1.jpg?raw=true)<br>
 **AMB82 MINI and QVGA TFT LCD 接線圖**<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/LCD2.jpg?raw=true)<br>
-## 編碼設計流程圖<br>
+**表一：ILI9341 TFT LCD 規格表**
+
+| 項目       | 說明                                                              |
+|------------|-------------------------------------------------------------------|
+| 顯示尺寸   | 2.4 吋 / 2.8 吋 TFT LCD                                            |
+| 解析度     | 240 × 320 pixels                                                  |
+| 控制晶片   | ILI9341                                                           |
+| 通訊介面   | SPI（支援 4 線序列通訊，亦可設定為 8-bit 並列）                  |
+| 顯示色彩   | 262K（18-bit）真彩顯示                                            |
+| 操作電壓   | 3.3V（邏輯電平，部分模組具備 5V 轉接）                           |
+| 觸控功能   | 可選（部分模組具電阻式/電容式觸控，搭配 XPT2046）               |
+| 背光模組   | LED 背光，PWM 可調整亮度                                          |
+
+<br>**表二：ILI9341 TFT LCD 模組引腳定義與功能說明表**
+
+| 序號 | 引腳標號   | 說明                                                           |
+|------|------------|----------------------------------------------------------------|
+| 1    | VCC        | 5V/3.3V電源輸入                                                 |
+| 2    | GND        | 接地                                                             |
+| 3    | CS         | 液晶屏片選信號，低電平使能                                       |
+| 4    | RESET      | 液晶屏重定信號，低電平重定                                       |
+| 5    | DC/RS      | 液晶屏寄存器/資料選擇信號，低電平：寄存器，高電平：數據         |
+| 6    | SDI(MOSI)  | SPI匯流排寫資料信號                                              |
+| 7    | SCK        | SPI匯流排時鐘信號                                                |
+| 8    | LED        | 背光控制，高電平點亮，如無需控制則接3.3V常亮                     |
+| 9    | SDO(MISO)  | SPI匯流排讀數據信號，如無需讀取功能則可不接                     |
+|      |            | *(以下為觸摸屏信號線，如無需觸摸或模組本身不帶觸控，可不連接)*   |
+| 10   | T_CLK      | 觸摸SPI匯流排時鐘信號                                            |
+| 11   | T_CS       | 觸摸屏片選信號，低電平使能                                       |
+| 12   | T_DIN      | 觸摸SPI匯流排輸入                                                |
+| 13   | T_DO       | 觸摸SPI匯流排輸出                                                |
+| 14   | T_IRQ      | 觸摸屏中斷信號，檢測到觸摸時為低電平                             | 
+## PAM8403硬體介紹
+PAM8403 是一款低功耗、高效率的 D 類音訊放大器晶片，可提供最高 3W + 3W 雙聲道立體聲輸出，適用於驅動如 4Ω/3W 或 8Ω/2W 的小型喇叭。它常被整合為 小型擴大器模組，可直接與微控制器（如 AMB82-Mini）搭配，用於播放語音合成（TTS）或音樂訊號。<br>
+
+<br>**表三：PAM8403 音訊放大器模組規格表**
+
+| 項目         | 規格說明                                                       |
+|--------------|----------------------------------------------------------------|
+| 工作電壓     | 2.5V ~ 5.5V                                                    |
+| 最大輸出功率 | 3W × 2（於 5V、4Ω 負載）                                       |
+| 音訊輸入     | 模擬音訊（L/R 左右聲道輸入）                                   |
+| 控制方式     | 無需 MCU 控制，可直接使用 PWM 或 DAC 輸入                      |
+| 音質表現     | 低 THD（總諧波失真）與雜訊，音質清晰                            |
+| 功耗特性     | 高效率（>85%），待機電流極低                                    |
+| 大小         | 模組極小（約 2×2 cm），易於整合至小型裝置                      |
+
+<br>**表四：PAM8403 音訊放大器模組腳位定義**
+
+| 腳位名稱           | 功能說明                                                         |
+|--------------------|------------------------------------------------------------------|
+| VCC                | 電源正極（建議供應 5V）                                         |
+| GND                | 電源地                                                           |
+| L_IN               | 左聲道音訊輸入（模擬/PWM）                                      |
+| R_IN               | 右聲道音訊輸入（模擬/PWM）                                      |
+| L_OUT+ / L_OUT−    | 左聲道喇叭輸出（差動）                                          |
+| R_OUT+ / R_OUT−    | 右聲道喇叭輸出（差動）                                          |
+| EN（可選）         | 啟用腳，低電平時模組進入待機模式（部分版本）                   |
+<br>
+## 4ohm 3W speaker硬體介紹 <br>
+4Ω 3W 喇叭是一款常見於嵌入式系統、智慧裝置與音訊模組中的 小功率聲音輸出元件，具備結構緊湊、阻抗與功率規格標準化、易於搭配音訊擴大器模組（如 PAM8403）等優點。此類喇叭設計用於近距離音訊播放，適合語音提示、簡易音樂與 TTS（Text-to-Speech）語音輸出等應用。<br>
+**表五：4Ω 3W 喇叭模組規格表**
+
+| 項目               | 規格說明                                         |
+|--------------------|--------------------------------------------------|
+| 阻抗（Impedance）  | 4Ω（歐姆）                                       |
+| 額定功率           | 3W                                               |
+| 響應頻率範圍       | 約 200Hz ~ 10kHz（視型號而定）                  |
+| 音壓靈敏度         | 約 85 ~ 90 dB（1W/1m）                           |
+| 直徑尺寸           | 常見尺寸為 36mm / 40mm / 長條型                 |
+| 結構類型           | 有紙盆、塑膠盆、防塵網、磁鐵等結構              |
+| 音圈材質           | 銅線音圈 / 鋁音圈                                |
+<br>
+## 編碼設計流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
 ## 提示詞<br>
 **給予範例並提示需求**<br>
@@ -112,9 +186,9 @@ Feature: scan QR code to speak location<br>
 step 1. Scan QR code to get the text (name of the location)<br>
 step 2. Text-to-Speech to get the mp3 of the text<br>
 step 3. SDCardPlayMP3 to play the mp3 to speak the name of the location<br>
-## 專案流程圖<br>
+## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)<br>
-## arduino程式碼<br>
+## arduino程式碼
 ```
 /*
   這個範例整合了QR Code掃描、文字轉語音和MP3播放功能.
