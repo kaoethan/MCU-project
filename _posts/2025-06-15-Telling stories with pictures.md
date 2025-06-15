@@ -531,5 +531,6 @@ void loop() {
 ## 實作成果展示<br>
 
 [![看圖說故事](https://img.youtube.com/vi/Nd01xuZBOIY/0.jpg)](https://www.youtube.com/watch?v=Nd01xuZBOIY)
+<br>請點擊上面縮圖連結影片
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/story.jpg?raw=true)<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
