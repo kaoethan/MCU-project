@@ -362,7 +362,7 @@ void sdPlayMP3(String filename)
 }
 ```
 (這是AMB82-mini在arduino上利用genai偵測情緒的範例)<br>
-2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
+2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用相機拍照的範例)<br>
 3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
 4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
 1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard <br>
