@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 盲人導航系統
+title: EdgeAI-盲人導航系統
 author: [高屹]
 category: [Lecture]
 tags: [jekyll, ai]
@@ -18,6 +18,39 @@ This project uses QR code to play audio to assist blind people in navigation.
 **•	Camera (內建)**：每分鐘擷取影像，送至 Gemini Vision 模型。<br>
 **•	MicroSD 卡**：儲存辨識結果與對應影像。<br>
 **•	RTC 模組（若接入）**：確保時間戳記準確。<br>
+<br>
+**AMB82-Mini實體外觀圖**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/AMB82-MINI1.jpg?raw=true)<br>
+展示了 AMB82-Mini 的實體外觀，其中左側為搭載鏡頭的主開發板，右側為擴充模組，兩者皆具備豐富的 GPIO 排針與無線通訊模組。該圖有助於辨識實體接腳位置、連接模組佈局與實體安裝方向，是開發初期理解板子配置的第一步。鏡頭模組的存在也預示了該開發板具備即時影像擷取與傳送的能力，對於後續進行圖像辨識等 AI 應用至關重要。<br>
+<br>
+**AMB82-Mini主要介面說明圖**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/AMB82-MINI2.jpg?raw=true)<br>
+進一步聚焦於 AMB82-Mini 主板下方的三個 USB 介面與一個 RESET 按鈕，分別對應 UART_DOWNLOAD、USB OTG 與 Micro USB 功能，是韌體燒錄、USB 裝置掛載與序列埠通訊的關鍵接口。這張圖對於軟體開發者和系統整合者來說特別重要，因為錯誤的連接方式可能導致無法下載程式、裝置無法啟動或電力不穩。<br>
+<br>
+**AMB82-Mini 開發板前後視圖與 GPIO 腳位功能對應圖**<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/AMB82-MINI3.jpg?raw=true)<br>
+提供最為關鍵的 GPIO 腳位分佈與功能對應說明，包含前後兩面的腳位排列，並以顏色分類標示各腳位用途，例如 SPI、I2C、UART、PWM、ADC、GPIO 等。開發者可依據此圖完成模組整合與接腳設計，例如將 ILI9341 TFT LCD 透過 SPI 腳位接入，或將麥克風與喇叭透過 I2S、PWM 控制端連接，此外也能依據腳位分配規劃按鈕輸入或感測器模組串接。<br>
+<br>
+**GPIO INT（General-Purpose Input/Output with Interrupts)** <br>
+支援中斷觸發的 GPIO 腳位可用於偵測電壓變化（如上升緣/下降緣）並自動呼叫中斷函數，不需輪詢（polling），節省 CPU 運算資源，實現事件驅動控制。<br>
+**應用實例:** <br>
+•	按鈕按壓觸發畫面切換<br>
+•	PIR 感測器啟動語音警示<br>
+•	碰撞感測器觸發機械動作<br>
+**對應腳位:** <br>
+PF0（A0）、PF1（A1）、PF2（A2）、PF3（*A3）、PA0（A4）、PA1（A5）、PA2（A6）、PA3（A7）<br>
+<br>
+**PWM（Pulse Width Modulation）** <br>
+以數位方式產生變化的電壓波形，用以模擬類比輸出，適合控制亮度、音訊輸出、馬達速度等。PWM 透過改變佔空比調整輸出功率。<br>
+**應用實例:** <br>
+•	LED 呼吸燈效果<br>
+•	喇叭播放合成語音訊號<br>
+•	•伺服馬達轉角控制<br>
+**對應腳位:** <br>
+PF6、PF7、PF8、PF9（LED_B）、PF12、PF13<br>
+<br>
+**UART（Universal Asynchronous Receiver/Transmitter）** <br>
+UART 為非同步序列通訊，提供開發板與外部裝置（如藍牙模組、GPS、PC）之間的資料傳輸。AMB82-Mini 支援多組 UART（Serial1–3、LOG）。<br>
 ## 編碼設計流程圖<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
 ## 提示詞<br>
