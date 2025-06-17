@@ -270,7 +270,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 ## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
-1) GenAIVision_TTS_TFT
+1) GenAIVision_TTS_TFT(這是AMB82-mini在arduino上包含按鈕拍照 GenAI Google tts的範例 TFT顯示的範例)
 ```
 /*
 
@@ -450,7 +450,6 @@ void sdPlayMP3(String filename)
     fs.end();
 }
 ```
-(這是AMB82-mini在arduino上包含按鈕拍照 GenAI Google tts的範例 TFT顯示的範例)<br>
 2) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
 3) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
 Feature:
@@ -459,7 +458,7 @@ Feature:
 3.Send Text1 to Google-TTS and play mp3 file to speak 
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/story2.jpg?raw=true)<br>
-## arduino程式碼
+## 看圖說故事arduino程式碼
 ```
 #include WiFi.h
 #include WiFiUdp.h
@@ -617,7 +616,7 @@ void loop() {
 
 
 ```
-## 看圖說故事程式碼與說明
+## 看圖說故事程式碼說明
 **1.作業目標（Objective）** <br>
 使用 AMB82-mini 開發板拍照，將圖片傳送給 Gemini Vision 進行辨識，然後請 AI 根據畫面編寫一段童話故事，再利用 Google TTS 語音播出，讓系統像一位 AI 說故事的機器人。<br>
 
