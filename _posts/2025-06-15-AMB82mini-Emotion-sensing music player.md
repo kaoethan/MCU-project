@@ -270,7 +270,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 ## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
-1) GenAIVision_TTS_TFT
+1) GenAIVision_TTS_TFT(這是AMB82-mini在arduino上利用genai偵測情緒的範例)
 ```
 /*
 
@@ -450,7 +450,6 @@ void sdPlayMP3(String filename)
     fs.end();
 }
 ```
-(這是AMB82-mini在arduino上利用genai偵測情緒的範例)<br>
 2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用相機拍照的範例)<br>
 3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
 4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
@@ -460,7 +459,7 @@ void sdPlayMP3(String filename)
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion2.jpg?raw=true)<br>
-## arduino程式碼
+## 情緒感知音樂播放器arduino程式碼
 ```
 #include <WiFi.h>
 #include "GenAI.h"
@@ -616,7 +615,7 @@ void loop() {
 
 
 ```
-## 情緒感知音樂播放器程式碼與說明
+## 情緒感知音樂播放器程式碼說明
 **1. 作業目標（Objective）** <br>
 透過 AI 技術辨識使用者當下的情緒，並從 SD 卡中選取一首符合該情緒的音樂播放，以達到情緒療癒、情緒輔助與互動式體驗的效果。
 
