@@ -279,7 +279,7 @@ step 2. Text-to-Speech to get the mp3 of the text<br>
 step 3. SDCardPlayMP3 to play the mp3 to speak the name of the location<br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)<br>
-## arduino程式碼
+## AI盲人導航系統arduino程式碼
 ```
 /*
   這個範例整合了QR Code掃描、文字轉語音和MP3播放功能.
