@@ -463,159 +463,181 @@ void sdPlayMP3(String filename)
 ```
 #include <WiFi.h>
 #include "GenAI.h"
+#include "rtc.h"
 #include "VideoStream.h"
-#include "AmebaFatFS.h"
-#include "SPI.h"
-#include "AmebaILI9341.h"
+#include "AudioStream.h"
+#include "AudioEncoder.h"
+#include "MP4Recording.h"
 
-// Gemini + WiFi
-String Gemini_key = "AIzaSyDSSwD03fba-626Ilmx27zzU-byCNsWenA"; 
-char wifi_ssid[] = "Yikao";
-char wifi_pass[] = "20030108";
+// Wifi設定
+char ssid[] = "TCFSTWIFI.ALL";    // your network SSID (name)
+char pass[] = "035623116";        // your network password
 
+// 相關物件
 WiFiSSLClient client;
 GenAI llm;
-AmebaFatFS fs;
+AudioSetting configA(1);
+Audio audio;
+AAC aac;
+MP4Recording mp4;
+StreamIO audioStreamer1(1, 1);
+StreamIO audioStreamer2(1, 1);
+RTC rtc;
 
-// Camera
-VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
-#define CHANNEL 0
-uint32_t img_addr = 0;
-uint32_t img_len = 0;
-
-// Button and LEDs
-const int buttonPin = 1;
-#define LED_BLUE LED_B
-#define LED_GREEN LED_G
-
-// LCD
-#define TFT_RESET 5
-#define TFT_DC 4
-#define TFT_CS SPI_SS
-#define ILI9341_SPI_FREQUENCY 20000000
-AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
-#define LCD_TEXT_SIZE 2
-#define LCD_TEXT_COLOR ILI9341_GREEN
-
-void initWiFi() {
-    for (int i = 0; i < 2; i++) {
-        WiFi.begin(wifi_ssid, wifi_pass);
-        delay(1000);
-        Serial.print("Connecting to ");
-        Serial.println(wifi_ssid);
-
-        uint32_t StartTime = millis();
-        while (WiFi.status() != WL_CONNECTED) {
-            delay(500);
-            if ((StartTime + 5000) < millis()) break;
-        }
-
-        if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("\nSTAIP address: ");
-            Serial.println(WiFi.localIP());
-            break;
-        }
-    }
-}
-
-void init_TFTLCD() {
-    tft.clr();
-    tft.setCursor(0, 0);
-    tft.setForeground(LCD_TEXT_COLOR);
-    tft.setFontSize(LCD_TEXT_SIZE);
-}
-
-void sdPlayMP3(String filename) {
-    String filepath = String(fs.getRootPath()) + filename;
-    if (fs.exists(filepath)) {
-        File file = fs.open(filepath, MP3);
-        file.setMp3DigitalVol(175);
-        file.playMp3();
-        file.close();
-    } else {
-        Serial.println("MP3 檔案不存在：" + filename);
-    }
-}
+// A0, A1, A2 腳
+int sensorPinA0 = A0;   // 第一功能：拍照並送至 Gemini 解讀場景
+int sensorPinA1 = A1;   // 第二功能：發送 RTC 時間並回傳文本
+int sensorPinA2 = A2;   // 第三功能：錄音並送至 Gemini 轉換為文本
 
 void setup() {
-    Serial.begin(115200);
-    initWiFi();
+  Serial.begin(115200);
+  
+  // 設定Wi-Fi連線
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi connected");
 
-    // Camera
-    config.setRotation(0);
-    Camera.configVideoChannel(CHANNEL, config);
-    Camera.videoInit();
-    Camera.channelBegin(CHANNEL);
-    Camera.printInfo();
+  // 初始化 RTC
+  rtc.Init();
 
-    // SD
-    fs.begin();
-
-    // Button & LED
-    pinMode(buttonPin, INPUT);
-    pinMode(LED_BLUE, OUTPUT);
-    pinMode(LED_GREEN, OUTPUT);
-
-    // LCD
-    SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
-    tft.begin();
-    init_TFTLCD();
-    tft.println("Emotion MP3 Ready!");
-
-    Serial.println("System Ready.");
+  // 設定按鈕腳位
+  pinMode(sensorPinA0, INPUT);
+  pinMode(sensorPinA1, INPUT);
+  pinMode(sensorPinA2, INPUT);
+  
+  // 設定錄音參數
+  audio.configAudio(configA);
+  audio.begin();
+  aac.configAudio(configA);
+  aac.begin();
+  mp4.configAudio(configA, CODEC_AAC);
 }
 
 void loop() {
-    if (digitalRead(buttonPin) == HIGH) {
-        // LED Blink
-        for (int i = 0; i < 3; i++) {
-            digitalWrite(LED_BLUE, HIGH);
-            delay(300);
-            digitalWrite(LED_BLUE, LOW);
-            delay(300);
-        }
+  // 讀取 A0 腳，實現拍照並發送至 Gemini 解讀場景
+  int sensorValueA0 = analogRead(sensorPinA0);
+  if (sensorValueA0 > 500) {  // 當 A0 腳的讀取值高於某個閾值
+    captureAndAnalyzeScene();
+  }
 
-        // 拍照
-        Camera.getImage(0, &img_addr, &img_len);
+  // 讀取 A1 腳，發送 RTC 時間至 Gemini 並回傳文本
+  int sensorValueA1 = analogRead(sensorPinA1);
+  if (sensorValueA1 > 500) {  // 當 A1 腳的讀取值高於某個閾值
+    sendRTCtoGemini();
+  }
 
-        // 使用 Gemini 判斷情緒
-        String prompt_msg = "請判斷圖片中人物的主要情緒，例如happy、sadness、angry、surprise、fear、disgust等，只回覆最接近的一個情緒，用英文回答。";
-        String emotion = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg, img_addr, img_len, client);
-        emotion.trim();
-        emotion.toLowerCase();
+  // 讀取 A2 腳，錄音並發送至 Gemini 進行語音轉文本
+  int sensorValueA2 = analogRead(sensorPinA2);
+  if (sensorValueA2 > 500) {  // 當 A2 腳的讀取值高於某個閾值
+    recordAndTranscribeAudio();
+  }
 
-        Serial.println("辨識情緒結果：" + emotion);
-
-        // 判斷 MP3 檔名
-        String mp3name;
-        if (emotion.indexOf("happy") != -1) mp3name = "happy.mp3";
-        else if (emotion.indexOf("sadness") != -1) mp3name = "sadness.mp3";
-        else if (emotion.indexOf("surprise") != -1) mp3name = "surprise.mp3";
-        else if (emotion.indexOf("fear") != -1) mp3name = "fear.mp3";
-        else if (emotion.indexOf("angry") != -1) mp3name = "angry.mp3";
-        else if (emotion.indexOf("disgust") != -1) mp3name = "disgust.mp3";
-        else mp3name = "else.mp3";
-
-        Serial.println("播放音樂檔案：" + mp3name);
-
-        // 顯示在 ILI9341 LCD 上
-        init_TFTLCD();
-        tft.println("Emotion: " + emotion);
-        tft.println("MP3: " + mp3name);
-
-        // 播放 MP3
-        digitalWrite(LED_GREEN, HIGH);
-        sdPlayMP3(mp3name);
-        digitalWrite(LED_GREEN, LOW);
-
-        delay(1000);  // debounce
-        while (digitalRead(buttonPin) == HIGH); // 等待按鍵放開
-    }
+  delay(100);  // 避免重複觸發
 }
 
+void captureAndAnalyzeScene() {
+  // 假設拍照並發送至 Gemini API（使用之前的程式碼邏輯）
+  String prompt_msg = "請問這個回收物是什麼?";
+  uint32_t img_addr = 0;
+  uint32_t img_len = 0;
+  
+  Camera.getImage(0, &img_addr, &img_len);
+  String text = llm.geminivision("your_gemini_key", "gemini-2.0-flash", prompt_msg, img_addr, img_len, client);
+  Serial.println(text);
+}
+
+void sendRTCtoGemini() {
+  long long seconds = rtc.Read();
+  struct tm *timeinfo = localtime(&seconds);
+
+  String rtcTime = String(timeinfo->tm_year + 1900) + "-" + String(timeinfo->tm_mon + 1) + "-" + String(timeinfo->tm_mday) + " " +
+                   String(timeinfo->tm_hour) + ":" + String(timeinfo->tm_min) + ":" + String(timeinfo->tm_sec);
+
+  // 發送RTC時間給Gemini並回傳文本
+  String prompt_msg = "現在的時間是：" + rtcTime;
+  String text = llm.geminivision("your_gemini_key", "gemini-2.0-flash", prompt_msg, 0, 0, client);
+  Serial.println(text);
+}
+
+void recordAndTranscribeAudio() {
+  String fileName = "audio_recording.mp4";
+  int recordSeconds = 5;
+
+  // 錄音並將其發送至 Gemini
+  mp4.setRecordingDuration(recordSeconds);
+  mp4.setRecordingFileName(fileName);
+  mp4.startRecording();
+  delay(recordSeconds * 1000);  // 記錄音頻的時間
+
+  // 錄音結束後，發送至 Gemini 進行語音轉文本
+  String text = llm.geminiaudio("your_gemini_key", fileName, "gemini-2.0-flash", mp4, "Please transcribe the audio", client);
+  Serial.println(text);
+
+  // 使用 Text-to-Speech 播放文本
+  String mp3Filename = "response.mp3";
+  llm.googletts(mp3Filename, text, "en-US");
+  sdPlayMP3(mp3Filename);
+}
+
+void sdPlayMP3(String filename) {
+  fs.begin();
+  String filepath = String(fs.getRootPath()) + filename;
+  File file = fs.open(filepath, MP3);
+  file.setMp3DigitalVol(120);
+  file.playMp3();
+  file.close();
+  fs.end();
+}
 
 ```
+## 盲人視覺輔助系統程式碼與說明
+**1.作業目標：** <br>
+整合以下 4 項功能，建立一個可以進行感測、影像辨識、時間推理、語音互動的智慧系統，使用樣例程式作為參考，完成整合應用程式。<br>
+
+**2.功能說明：** <br>
+(一)觸控（Touch）功能 — ADC 模擬輸入<br>
+使用 類比輸入（Analog Input） 偵測觸控狀態（可用手指接觸金屬片或電阻式觸控感測）。<br>
+範例參考程式：<br>
+examples > 03. Analog > AnalogInput.ino<br>
+用途：透過觸控觸發不同功能模式（例如每觸一次切換功能）。<br>
+
+(二)拍照並詢問 Gemini 場景辨識<br>
+使用攝影機模組拍照，並把圖片傳送給 Google Gemini Vision API。<br>
+從回傳結果中獲得對當前場景的描述。<br>
+範例參考程式：<br>
+GenAIVision_TTS.ino<br>
+用途：辨識你面前的東西，並用文字描述它。<br>
+
+(三)傳送 RTC 時間給 Gemini 並生成文字<br>
+使用 RTC 模組讀取實際時間資訊（年月日與時間）。<br>
+傳送給 Gemini Text API，請它根據時間生成一段有趣的描述或敘述。<br>
+範例參考程式：<br>
+examples > AmebaRTC > Simple_RTC.ino<br>
+用途：像是「現在是幾點鐘」→ Gemini 回答：「早上八點，是個適合喝咖啡的時刻」。<br>
+
+(四)錄音後傳送語音給 Gemini 並轉語音播放<br>
+使用麥克風錄音。<br>
+將音訊檔案傳送給 Gemini Audio API，進行語音辨識轉成文字。<br>
+再用 Google TTS（文字轉語音） 播放出來。<br>
+範例參考程式：<br>
+GenAISpeech.ino<br>
+用途：你說一句話 → 系統將語音轉成文字，再唸出來（語音回應）。<br>
+**3.整合應用建議：** <br>
+你可以設計成 按一次觸控切換一個模式：<br>
+第一次觸控 ➜ 啟動 Vision 場景辨識模式<br>
+第二次觸控 ➜ 啟動 RTC 時間解釋模式<br>
+第三次觸控 ➜ 啟動語音錄音＋轉文字＋TTS 模式<br>
+第四次觸控 ➜ 回到初始或輪迴模式<br>
+**4.實作重點：** <br>
+每個功能模組可以用樣例程式測試完成後再進行整合。<br>
+整合時注意：<br>
+函式的呼叫與切換流程<br>
+LCD 顯示（若有）、MP3 播放、SD 儲存等額外功能配合使用<br>
+各模組之間的資源（如 memory、pin 腳、串流）不可衝突
 ## 實作成果展示<br>
-[![情緒感知](https://img.youtube.com/vi/zSsoNETjJEk/0.jpg)](https://www.youtube.com/watch?v=zSsoNETjJEk)
+編譯失敗待調整<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
 
