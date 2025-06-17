@@ -6,7 +6,7 @@ category: [Lecture]
 tags: [jekyll, ai]
 ---
 # 邊緣計算微控制器原理與應用設計-AI監視錄影系統
-This project uses QR code to play audio to assist blind people in navigation.
+This project uses the camera to take photos at regular intervals, sends them to AI to identify the scene, and stores the photos and scene descriptions.
 
 ---
 ## AMB82-mini 硬體介紹
@@ -270,156 +270,223 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 ## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
-1) examples> AmebaQR> QRCodeScanner(這是AMB82-MINI 上使用 QR Code 掃描的 Arduino 範例)<br>
-2) examples> AmebaNN> MultimediaAI > TextToSpeech(這是AMB82-MINI 上使用 Google TTS 的 Arduino 範例)<br>
-3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
-Feature: scan QR code to speak location<br>
-step 1. Scan QR code to get the text (name of the location)<br>
-step 2. Text-to-Speech to get the mp3 of the text<br>
-step 3. SDCardPlayMP3 to play the mp3 to speak the name of the location<br>
+1) examples> AmebaNN> MultimediaAI > GenAIVision(這是AMB82-MINI 上使用 GenAI 範例)<br>
+2) exmaples> AmebaMultimedia > CaptureJPEG >SDCardSaveJPEG(這是AMB82-MINI 拍照後使用 SD 卡儲存照片的範例)<br>
+3) examples > AmebaRTC > Simple_RTC.ino (這是AMB82-MINI 上使用 RTC 範例)
+Function:
+1) capture image per minute and send to Gemini Vision (1分鐘拍一張)<br>
+2) if replied text has no change, then dont store the jpg and text<br>
+ if replied text are different from the previous scene, then store the jpg and text (use date+time for the filename)<br>
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)<br>
-## arduino程式碼
+![](https://github.com/kaoethan/MCU-project/blob/main/images/372.jpg?raw=true)<br>
+## AI監視錄影系統arduino程式碼
 ```
 /*
-  這個範例整合了QR Code掃描、文字轉語音和MP3播放功能.
-  當AMB82-mini掃描到QR Code後，會將QR Code中的文字內容轉換為語音並播放出來.
+  This sketch captures an image every minute, sends it to Gemini Vision,
+  and stores the image and description on an SD card only if the description changes.
+  Filenames will include the date and time.
+  Using 'gemini-1.5-flash' model as 'gemini-1.0-pro-vision' is deprecated.
 
-  參考來源:
-  - 文字轉語音: https://ameba-arduino-doc.readthedocs.io/en/latest/amebapro2/Example_Guides/Neural%20Network/Text-to-Speech.html
-  - QR Code掃描: https://www.amebaiot.com/en/amebapro2-arduino-video-qrcode/
-  - SD卡MP3播放: https://ameba-doc-arduino-sdk.readthedocs-hosted.com/en/latest/amebapro2/Example_Guides/Multimedia/Play%20MP3%20with%20SD%20card.html
-
-  作者: ChungYi Fu (Kaohsiung, Taiwan) - 文字轉語音部分
+  Credit : ChungYi Fu (Kaohsiung, Taiwan) - Original example codes
 */
 
-#include "WiFi.h"
-#include <WiFiUdp.h>
+#include <WiFi.h>
+#include <NTPClient.h> // For getting time from NTP server
+#include <WiFiUdp.h>   // Required for NTPClient
+
 #include "GenAI.h"
-#include "AmebaFatFS.h"
 #include "VideoStream.h"
-#include "QRCodeScanner.h"
+#include "AmebaFatFS.h"
 
-// Wi-Fi 設定
-char ssid[] = "Yikao";     // 您的Wi-Fi SSID (網路名稱)
-char pass[] = "20030108";  // 您的Wi-Fi密碼
+String Gemini_key = "AIzaSyAzAQRnNDlBXiac4E5SZcLSua-luXpbC3E"; // Paste your generated Gemini API key here
+char wifi_ssid[] = "hahaha";       // Your network SSID (name)
+char wifi_pass[] = "93034570";   // Your network password
 
-// 檔案系統和AI物件
-AmebaFatFS fs;
-GenAI tts;
-
-// MP3 檔案名稱
-String mp3Filename = "qrcode_speech.mp3";
-
-// 影像設定
+WiFiSSLClient client;
+GenAI llm;
+VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1); // 可根據需求調整解析度
 #define CHANNEL 0
-VideoSetting config(CHANNEL);
-QRCodeScanner Scanner;
 
-// ---
-// Wi-Fi 連線函式
+uint32_t img_addr = 0;
+uint32_t img_len = 0;
 
-// 此函式用於初始化並連接到您的Wi-Fi網路.
+String prompt_msg = "Please provide a brief summary of the image, including any text if visible."; // Simplified prompt
+String previous_gemini_text = ""; // 儲存上一次 Gemini 的回應，用於比較
+
+AmebaFatFS fs;
+File logFile; // 用於儲存文字描述
+
+// NTP Client setup
+WiFiUDP ntpUDP;
+// NTP 伺服器, GMT+8 時區偏移 (台灣時間)
+// 請根據您的實際時區調整 8 * 3600
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 8 * 3600);
+
+unsigned long lastCaptureTime = 0;
+const unsigned long captureInterval = 60000; // 1 分鐘 (毫秒)
+
 void initWiFi() {
-  for (int i = 0; i < 2; i++) {
-    WiFi.begin(ssid, pass);
-    delay(1000);
-    Serial.println("");
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
+  Serial.println("\n正在連接到 WiFi...");
+  WiFi.begin(wifi_ssid, wifi_pass);
 
-    uint32_t StartTime = millis();
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      if ((StartTime + 5000) < millis()) {
-        break;
-      }
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.println("");
-      Serial.println("STA IP address: ");
-      Serial.println(WiFi.localIP());
-      Serial.println("");
-      break;
+  uint32_t StartTime = millis();
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    if ((StartTime + 15000) < millis()) { // 增加 WiFi 連線超時時間
+      Serial.println("連接 WiFi 失敗。正在重試...");
+      StartTime = millis(); // 重設計時器以重試
     }
   }
+
+  Serial.println("WiFi 連線成功。");
+  Serial.print("IP 位址: ");
+  Serial.println(WiFi.localIP());
 }
 
-// ---
-// SD 卡播放 MP3 函式
+String formatDateTime(unsigned long epochTime) {
+  time_t rawtime = epochTime;
+  struct tm * ti;
+  ti = localtime(&rawtime);
 
-// 此函式用於從 SD 卡播放指定的 MP3 檔案.
-void sdPlayMP3(String filename) {
-  fs.begin();
-  String filepath = String(fs.getRootPath()) + filename;
-  File file = fs.open(filepath, MP3);
-  if (!file) {
-    Serial.println("Error opening MP3 file!");
-    fs.end();
-    return;
-  }
-  file.setMp3DigitalVol(120); // 設定音量，範圍通常為 0-255
-  file.playMp3();
-  file.close();
-  fs.end();
+  // 格式: YYYYMMDD_HHMMSS
+  char buffer[20];
+  sprintf(buffer, "%04d%02d%02d_%02d%02d%02d",
+          ti->tm_year + 1900, ti->tm_mon + 1, ti->tm_mday,
+          ti->tm_hour, ti->tm_min, ti->tm_sec);
+  return String(buffer);
 }
 
-// ---
-// Setup 函式
-
-// 這是程式的初始化部分，只會執行一次. 它會初始化 Wi-Fi、相機和 QR Code 掃描器.
 void setup() {
   Serial.begin(115200);
-  initWiFi(); // 初始化Wi-Fi連線
 
-  // 設定相機影像通道
+  initWiFi();
+
+  // 初始化 NTP 客戶端
+  timeClient.begin();
+  Serial.println("正在從 NTP 伺服器更新時間...");
+  while(!timeClient.update()) { // 等待時間更新完成
+    Serial.print(".");
+    delay(1000);
+  }
+  Serial.println("\n時間已更新。");
+  Serial.print("當前時間: ");
+  Serial.println(timeClient.getFormattedTime());
+
+  config.setRotation(0); // 如果相機方向不同，請調整旋轉角度
   Camera.configVideoChannel(CHANNEL, config);
   Camera.videoInit();
+  Camera.channelBegin(CHANNEL);
+  Camera.printInfo();
 
-  Scanner.StartScanning(); // 開始QR Code掃描
-  Serial.println("QR Code Scanner started.");
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+
+  // 初始化 SD 卡
+  if (!fs.begin()) {
+    Serial.println("錯誤: 無法初始化 SD 卡！");
+    while (true); // 如果 SD 卡失敗則停止
+  }
+  Serial.println("SD 卡初始化成功。");
+
+  lastCaptureTime = millis() - captureInterval; // 讓第一次捕捉立即發生
 }
 
-// ---
-// Loop 函式
-
-// 這是程式的主迴圈，會重複執行. 它會不斷檢查 QR Code 掃描結果，如果掃描到內容，則會進行文字轉語音並播放.
 void loop() {
-  delay(500); // 縮短延遲以提高掃描反應速度
+  timeClient.update(); // 定期更新時間
 
-  Scanner.GetResultString();
-  Scanner.GetResultLength();
+  // 檢查是否到了捕捉圖像的時間
+  if (millis() - lastCaptureTime >= captureInterval) {
+    lastCaptureTime = millis(); // 更新上次捕捉時間
 
-  if (Scanner.ResultString != nullptr && Scanner.ResultLength > 0) {
-    Serial.print("Result String is: ");
-    Serial.println(Scanner.ResultString);
-    Serial.print("Result Length is: ");
-    Serial.println(Scanner.ResultLength);
+    digitalWrite(LED_BUILTIN, HIGH); // 指示相機正在活動
+    Serial.println("\n正在捕捉圖像...");
+    Camera.getImage(0, &img_addr, &img_len);
+    digitalWrite(LED_BUILTIN, LOW); // 關閉指示燈
 
-    String message = String(Scanner.ResultString);
-    Serial.print("Converting text to speech: ");
-    Serial.println(message);
+    Serial.println("正在將圖像發送到 Gemini Vision (gemini-1.5-flash)...");
+    // ****** 關鍵更改：將模型名稱從 "gemini-pro-vision" 更改為 "gemini-1.5-flash" ******
+    String current_gemini_text = llm.geminivision(Gemini_key, "gemini-1.5-flash", prompt_msg, img_addr, img_len, client);
 
-    // 執行文字轉語音，語言設定為英文 (en-US)
-    // 如果需要其他語言，請參考Google Translate API的語言代碼
-    // 例如: "zh-TW" 代表繁體中文
-    tts.googletts(mp3Filename, message, "en-US");
-    delay(1000); // 等待MP3檔案生成完成
+    // Simplify the Gemini response by trimming it to a certain length (e.g., 200 characters)
+    if (current_gemini_text.length() > 200) {
+      current_gemini_text = current_gemini_text.substring(0, 200) + "...";
+    }
 
-    Serial.println("Playing MP3...");
-    sdPlayMP3(mp3Filename); // 播放生成的MP3檔案
+    Serial.println("\nGemini 回應:");
+    Serial.println(current_gemini_text);
 
-    // 清除掃描結果，避免重複播放
-    Scanner.ResultString = nullptr;
-    Scanner.ResultLength = 0;
+    // 與之前的文字進行比較
+    // 檢查回應文字是否與上次不同，並且回應長度大於 0 (避免儲存空回應)
+    if (current_gemini_text != previous_gemini_text && current_gemini_text.length() > 0) {
+      Serial.println("偵測到場景變化或新的有效描述。正在儲存圖像和文字。");
+
+      // 取得當前格式化的日期和時間作為檔名
+      String dateTimeString = formatDateTime(timeClient.getEpochTime());
+
+      // 儲存圖像
+      String imageFileName = "/" + dateTimeString + ".jpg";
+      File imageFile = fs.open(imageFileName);
+      if (imageFile) {
+        imageFile.write((uint8_t *)img_addr, img_len);
+        imageFile.close();
+        Serial.print("圖像已儲存為: ");
+        Serial.println(imageFileName);
+      } else {
+        Serial.println("錯誤: 無法打開圖像文件進行寫入。");
+      }
+
+      // 儲存文字描述
+      String logFileName = "/" + dateTimeString + ".txt";
+      logFile = fs.open(logFileName);
+      if (logFile) {
+        logFile.print(current_gemini_text);
+        logFile.close();
+        Serial.print("描述已儲存為: ");
+        Serial.println(logFileName);
+      } else {
+        Serial.println("錯誤: 無法打開描述文件進行寫入。");
+      }
+
+      previous_gemini_text = current_gemini_text; // 更新先前的文字
+    } else {
+      Serial.println("未偵測到明顯的場景變化或回應為空。不儲存。");
+    }
   }
+
+  // 為了避免迴圈執行過快，添加一個小延遲
+  delay(100);
 }
 
 
 ```
-## 實作成果展示<br>
-[![盲人導航系統展示](https://img.youtube.com/vi/vs5l0WUSbJA/0.jpg)](https://www.youtube.com/watch?v=vs5l0WUSbJA)<br>
+## AI監視錄影系統程式碼說明
+**1.作業目標(Objective):** <br>
+使用 AMB82-mini 開發板，每分鐘自動拍照一次，將照片送給 Gemini Vision 進行場景描述。如果與上一次的場景描述不同，則將該照片與描述儲存起來（使用日期與時間作為檔案名稱）。若與上次相同，則不儲存，節省空間。<br>
+
+**2.開發板與功能（Board & Function）** <br>
+Board: AMB82-mini（Realtek RTL8735B）<br>
+
+👉 支援攝影機拍照、Wi-Fi 上傳、SD 卡儲存、RTC 實時時鐘功能。<br>
+
+**3.功能流程說明（Function Flow）** <br>
+(一)每分鐘自動拍照一次<br>
+使用 RTC（實時時鐘） 或 millis() 計時器，每 60 秒觸發一次攝影機拍照。<br>
+
+(二)照片送出給 Gemini Vision 做場景辨識<br>
+拍下來的影像上傳給 Google Gemini Vision，得到一段文字描述（例如：”A park with people walking.”）<br>
+
+(三)比對新回覆與上一次的文字是否相同<br>
+如果相同 → 忽略，不存圖也不存文字 如果不同 → 儲存該張 JPG 圖片與文字檔，並使用 RTC 的日期與時間命名<br>
+## 實作成果展示
+![](https://github.com/kaoethan/MCU-project/blob/main/images/369.jpg?raw=true)<br>
+**照片對應文字敘述** <br>
+From a low-angle perspective, the image captures a person wearing glasses with a hand obscuring part of their face. The person has short, dark hair and fair skin. Their lips are slightly parted, and their tongue is visible. The hand appears to be resting gently on their face, with the fingers spread out. The glasses have a thick, dark frame and rectangular lenses, which reflect the light. The background is a muted, light gray color with subtle variations in tone. At the top, there's a bright, blurred light source, possibly a window or a lamp. The overall impression is an unconventional portrait with a strong focus on the hand and the person's facial features.<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/370.jpg?raw=true)<br>
+**照片對應文字敘述** <br>
+Here's a description of the image:<br>
+
+The image is taken from a low angle, looking up at a person with short black hair and glasses. They are wearing a white shirt, a black vest, and a silver chain necklace. The person has a thoughtful expression, with a slight smile, and their hand is touching their chin. The background is a white ceiling with linear fluorescent lights. The perspective is skewed due to the low angle.<br>
+
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
 
 
