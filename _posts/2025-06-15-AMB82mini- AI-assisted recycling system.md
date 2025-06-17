@@ -270,7 +270,8 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 ## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
-1) GenAIVision_TTS_TFT
+
+1) GenAIVision_TTS(這是AMB82-MINI 使用 透過拍照→影像辨識→TTS→播放語音的範例)<br>
 ```
 /*
 
@@ -303,9 +304,6 @@ char wifi_pass[] = "035623116";        // your network password
 #include <WiFiUdp.h>
 #include "GenAI.h"
 #include "VideoStream.h"
-#include "SPI.h"
-#include "AmebaILI9341.h"
-#include "TJpg_Decoder.h" // Include the jpeg decoder library
 #include "AmebaFatFS.h"
 
 WiFiSSLClient client;
@@ -320,26 +318,11 @@ VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
 
 uint32_t img_addr = 0;
 uint32_t img_len = 0;
-const int buttonPin = 1;          // the number of the pushbutton pin
 
 //String prompt_msg = "What type and name of the recyclables in the picture?";
-String prompt_msg = "請問這個回收物是什麼?請用中文回答";
+String prompt_msg = "請問這個回收物是什麼?";
 
-#define TFT_RESET 5
-#define TFT_DC    4
-#define TFT_CS    SPI_SS
-
-AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
-
-#define ILI9341_SPI_FREQUENCY 20000000
-
-bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
-{
-    tft.drawBitmap(x, y, w, h, bitmap);
-
-    // Return 1 to decode next block
-    return 1;
-}
+const int buttonPin = 1;          // the number of the pushbutton pin
 
 void initWiFi()
 {
@@ -369,23 +352,10 @@ void initWiFi()
     }
 }
 
-void init_tft()
-{
-    tft.begin();
-    tft.setRotation(2);
-
-    tft.clr();
-    tft.setCursor(0, 0);
-
-    tft.setForeground(ILI9341_GREEN);
-    tft.setFontSize(2);
-}
-
 void setup()
 {
     Serial.begin(115200);
 
-    SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
     initWiFi();
 
     config.setRotation(0);
@@ -396,20 +366,12 @@ void setup()
     
     pinMode(buttonPin, INPUT);
     pinMode(LED_B, OUTPUT);
-
-    init_tft();
-    tft.println("GenAIVision_TTS_LCD");
-
-    TJpgDec.setJpgScale(2); // The jpeg image can be scaled by a factor of 1, 2, 4, or 8    
-    TJpgDec.setCallback(tft_output);
+    pinMode(LED_G, OUTPUT);    
 }
 
 void loop()
 {
-    tft.setCursor(0,1);
-    tft.println("press button to capture image");
      if ((digitalRead(buttonPin)) == 1) {
-        tft.println("Capture Image");       
         // Start MP4 recording after 3 seconds of blinking
         for (int count = 0; count < 3; count++) {
             digitalWrite(LED_B, HIGH);
@@ -417,25 +379,22 @@ void loop()
             digitalWrite(LED_B, LOW);
             delay(500);
         }
-    // Camera take image
-        Camera.getImage(0, &img_addr, &img_len); 
 
-    // JPEG decode image & display
-        TJpgDec.getJpgSize(0, 0, (uint8_t *)img_addr, img_len);
-        TJpgDec.drawJpg(0, 0, (uint8_t *)img_addr, img_len);
+    // Vision prompt using same taken image
+       Camera.getImage(0, &img_addr, &img_len);        
+    // openAI vision prompt
+    //  String text = llm.openaivision(openAI_key, "gpt-4o-mini", prompt_msg, img_addr, img_len, client);
 
-    // LLM Vision
+    // Gemini vision prompt        
         String text = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg, img_addr, img_len, client);
-        Serial.println(text);
 
-    // Text-To-Speech & play mp3 file
-        tft.clr();
-        tft.setCursor(0, 0);    
-        tft.println("Text-To-Speech");
-        //tts.googletts(mp3Filename, text, "en-US");
-        tts.googletts(mp3Filename, text, "zh-TW");
+    // Llama vision prompt
+    //  String text = llm.llamavision(Llama_key, "llama-3.2-90b-vision-preview", prompt_msg, img_addr, img_len, client); 
+        Serial.println(text);
+        tts.googletts(mp3Filename, text, "en-US");
         delay(500);
-        sdPlayMP3(mp3Filename);       
+        sdPlayMP3(mp3Filename);
+
     }
 }
 
@@ -444,16 +403,13 @@ void sdPlayMP3(String filename)
     fs.begin();
     String filepath = String(fs.getRootPath()) + filename;
     File file = fs.open(filepath, MP3);
-    file.setMp3DigitalVol(175);
+    file.setMp3DigitalVol(120);
     file.playMp3();
     file.close();
     fs.end();
 }
 ```
-(這是AMB82-mini在arduino上利用genai偵測情緒的範例)<br>
-2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用相機拍照的範例)<br>
-3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
-4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
+2) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
 1.Press button to capture an image<br>
 2.Send Image to Google-Gemini and response message<br>
 3.Send Message to Google-TTS and play mp3 file to speak <br>
@@ -570,7 +526,6 @@ void loop() {
     delay(2000);
   }
 }
-
 
 
 ```
