@@ -616,6 +616,27 @@ void loop() {
 
 
 ```
+## 情緒感知音樂播放器程式碼與說明
+**1. 作業目標（Objective）** <br>
+透過 AI 技術辨識使用者當下的情緒，並從 SD 卡中選取一首符合該情緒的音樂播放，以達到情緒療癒、情緒輔助與互動式體驗的效果。
+
+**2. 功能與操作流程（Feature Description）** <br>
+（一）📷 拍照並透過 Gemini 辨識情緒
+使用者觸發拍照：按下按鈕後，系統控制 AMB82-MINI 開發板的攝影模組拍攝使用者的臉部照片。<br>
+圖片上傳至 Gemini Vision API：<br>
+圖片資料傳送至 Google Gemini Vision（Gemini-2.0-Flash 模型）。<br>
+使用設計好的 提示詞（Prompt），內容將同時列出可播放的音樂選項（如："happy.mp3", "sadness.mp3", "angry.mp3"）。<br>
+
+AI 分析情緒：<br>
+Gemini Vision 根據影像中人物的表情特徵進行情緒辨識。<br>
+回傳一段文字描述情緒與建議播放的歌曲檔名。<br>
+範例 Prompt：<br>
+「請分析照片中的人現在的情緒，並從以下三首音樂中選出最適合的：happy.mp3、sadness.mp3、angry.mp3。請只回答適合的檔名。」<br>
+
+（二）🎵 播放 MP3 音樂檔<br>
+取得 Gemini 回傳的歌曲檔名：<br>
+解析 Gemini Vision 的回答，擷取建議的 MP3 檔名（如 "sadness.mp3"）。<br>
+從 SD 卡撥放 MP3：<br>
 ## 實作成果展示<br>
 [![情緒感知](https://img.youtube.com/vi/zSsoNETjJEk/0.jpg)](https://www.youtube.com/watch?v=zSsoNETjJEk)
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
