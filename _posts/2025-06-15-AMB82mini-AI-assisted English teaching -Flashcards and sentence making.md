@@ -6,7 +6,7 @@ category: [Lecture]
 tags: [jekyll, ai]
 ---
 # 邊緣計算微控制器原理與應用設計-AI輔助英語教學-獨字卡與造句
-This project uses QR code to play audio to assist blind people in navigation.
+This project uses the camera to take photos and upload them to AI to read word cards
 
 ---
 ## AMB82-mini 硬體介紹
