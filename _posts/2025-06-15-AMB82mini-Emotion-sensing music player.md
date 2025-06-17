@@ -6,7 +6,7 @@ category: [Lecture]
 tags: [jekyll, ai]
 ---
 # 邊緣計算微控制器原理與應用設計-情緒音樂感知撥放器
-This project uses QR code to play audio to assist blind people in navigation.
+This project uses camera to detect emotions and recommend songs
 
 ---
 ## AMB82-mini 硬體介紹
@@ -370,6 +370,7 @@ void sdPlayMP3(String filename)
 3.顯示gemini的回覆及播放的MP檔名在顯示器上<br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion2.jpg?raw=true)<br>
 ## arduino程式碼
 ```
 #include <WiFi.h>
