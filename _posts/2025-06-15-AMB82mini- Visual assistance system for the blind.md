@@ -267,7 +267,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 限制不想要的東西<br>
 加入範例與邏輯限制<br>
 越明確，越好用
-## 提示詞
+## 專案提示詞
 **給予範例並提示需求**<br>
 範例<br>
 1) examples > 03. Analog > AnalogInput.ino(這是AMB82-mini在arduino上AnalogInput的範例,可用來應用於觸控ADC)
