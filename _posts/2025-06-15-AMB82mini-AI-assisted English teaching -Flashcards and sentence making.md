@@ -270,7 +270,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 ## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
-1) GenAIVision_TTS_TFT
+1) GenAIVision_TTS(這是AMB82-mini在arduino上拍照 → AI 辨識 → TTS 播音的範例)
 ```
 /*
 
@@ -303,9 +303,6 @@ char wifi_pass[] = "035623116";        // your network password
 #include <WiFiUdp.h>
 #include "GenAI.h"
 #include "VideoStream.h"
-#include "SPI.h"
-#include "AmebaILI9341.h"
-#include "TJpg_Decoder.h" // Include the jpeg decoder library
 #include "AmebaFatFS.h"
 
 WiFiSSLClient client;
@@ -320,26 +317,11 @@ VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
 
 uint32_t img_addr = 0;
 uint32_t img_len = 0;
-const int buttonPin = 1;          // the number of the pushbutton pin
 
 //String prompt_msg = "What type and name of the recyclables in the picture?";
-String prompt_msg = "請問這個回收物是什麼?請用中文回答";
+String prompt_msg = "請問這個回收物是什麼?";
 
-#define TFT_RESET 5
-#define TFT_DC    4
-#define TFT_CS    SPI_SS
-
-AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
-
-#define ILI9341_SPI_FREQUENCY 20000000
-
-bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
-{
-    tft.drawBitmap(x, y, w, h, bitmap);
-
-    // Return 1 to decode next block
-    return 1;
-}
+const int buttonPin = 1;          // the number of the pushbutton pin
 
 void initWiFi()
 {
@@ -369,23 +351,10 @@ void initWiFi()
     }
 }
 
-void init_tft()
-{
-    tft.begin();
-    tft.setRotation(2);
-
-    tft.clr();
-    tft.setCursor(0, 0);
-
-    tft.setForeground(ILI9341_GREEN);
-    tft.setFontSize(2);
-}
-
 void setup()
 {
     Serial.begin(115200);
 
-    SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
     initWiFi();
 
     config.setRotation(0);
@@ -396,20 +365,12 @@ void setup()
     
     pinMode(buttonPin, INPUT);
     pinMode(LED_B, OUTPUT);
-
-    init_tft();
-    tft.println("GenAIVision_TTS_LCD");
-
-    TJpgDec.setJpgScale(2); // The jpeg image can be scaled by a factor of 1, 2, 4, or 8    
-    TJpgDec.setCallback(tft_output);
+    pinMode(LED_G, OUTPUT);    
 }
 
 void loop()
 {
-    tft.setCursor(0,1);
-    tft.println("press button to capture image");
      if ((digitalRead(buttonPin)) == 1) {
-        tft.println("Capture Image");       
         // Start MP4 recording after 3 seconds of blinking
         for (int count = 0; count < 3; count++) {
             digitalWrite(LED_B, HIGH);
@@ -417,25 +378,22 @@ void loop()
             digitalWrite(LED_B, LOW);
             delay(500);
         }
-    // Camera take image
-        Camera.getImage(0, &img_addr, &img_len); 
 
-    // JPEG decode image & display
-        TJpgDec.getJpgSize(0, 0, (uint8_t *)img_addr, img_len);
-        TJpgDec.drawJpg(0, 0, (uint8_t *)img_addr, img_len);
+    // Vision prompt using same taken image
+       Camera.getImage(0, &img_addr, &img_len);        
+    // openAI vision prompt
+    //  String text = llm.openaivision(openAI_key, "gpt-4o-mini", prompt_msg, img_addr, img_len, client);
 
-    // LLM Vision
+    // Gemini vision prompt        
         String text = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg, img_addr, img_len, client);
-        Serial.println(text);
 
-    // Text-To-Speech & play mp3 file
-        tft.clr();
-        tft.setCursor(0, 0);    
-        tft.println("Text-To-Speech");
-        //tts.googletts(mp3Filename, text, "en-US");
-        tts.googletts(mp3Filename, text, "zh-TW");
+    // Llama vision prompt
+    //  String text = llm.llamavision(Llama_key, "llama-3.2-90b-vision-preview", prompt_msg, img_addr, img_len, client); 
+        Serial.println(text);
+        tts.googletts(mp3Filename, text, "en-US");
         delay(500);
-        sdPlayMP3(mp3Filename);       
+        sdPlayMP3(mp3Filename);
+
     }
 }
 
@@ -444,23 +402,396 @@ void sdPlayMP3(String filename)
     fs.begin();
     String filepath = String(fs.getRootPath()) + filename;
     File file = fs.open(filepath, MP3);
-    file.setMp3DigitalVol(175);
+    file.setMp3DigitalVol(120);
     file.playMp3();
     file.close();
     fs.end();
 }
 ```
-(這是AMB82-mini在arduino上利用genai偵測情緒的範例)<br>
-2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用相機拍照的範例)<br>
-3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
-4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
-1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard <br>
-2. play MP3 file<br>
-3.顯示gemini的回覆及播放的MP檔名在顯示器上<br>
-## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
+2)GenAIVision_TTS_Text_ReadWordCard(這是AMB82-MINI 使用拍照 → 辨識單字 → 唸出單字 → 自動造句 → 唸出句子的範例)
+```
+/*
 
-## 五、AI輔助英語教學系統程式碼與說明
+This sketch shows the example of image prompts using APIs, plus text-to-speech using Google Translate API.
+
+openAI platform - openAI vision
+https://platform.openai.com/docs/guides/vision
+
+Google AI Studio - Gemini vision
+https://ai.google.dev/gemini-api/docs/vision
+
+GroqCloud - Llama vision
+https://console.groq.com/docs/overview
+
+Example Guide: https://ameba-arduino-doc.readthedocs.io/en/latest/amebapro2/Example_Guides/Neural%20Network/Generative%20AI%20Vision.html
+Example Guide: https://ameba-arduino-doc.readthedocs.io/en/latest/amebapro2/Example_Guides/Neural%20Network/Text-to-Speech.html
+
+Credit : ChungYi Fu (Kaohsiung, Taiwan)
+
+2025/04/25 讀英文字卡及造句 created by Richard Kuo, NTOU/EE
+*/
+
+String openAI_key = "";                                         // paste your generated openAI API key here
+String Gemini_key = "";  // paste your generated Gemini API key here
+String Llama_key = "";                                          // paste your generated Llama API key here
+char wifi_ssid[] = "TCFSTWIFI.ALL";    // your network SSID (name)
+char wifi_pass[] = "035623116";        // your network password
+
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include "GenAI.h"
+#include "VideoStream.h"
+#include "SPI.h"
+#include "AmebaILI9341.h"
+#include "TJpg_Decoder.h"  // Include the jpeg decoder library
+#include "AmebaFatFS.h"
+
+WiFiSSLClient client;
+GenAI llm;
+GenAI tts;
+
+AmebaFatFS fs;
+String mp3Filename = "test_play_google_tts.mp3";
+
+VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
+#define CHANNEL 0
+
+uint32_t img_addr = 0;
+uint32_t img_len = 0;
+const int buttonPin = 1;  // the number of the pushbutton pin
+
+#define TFT_RESET 5
+#define TFT_DC 4
+#define TFT_CS SPI_SS
+
+AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
+
+#define ILI9341_SPI_FREQUENCY 20000000
+
+bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
+  tft.drawBitmap(x, y, w, h, bitmap);
+
+  // Return 1 to decode next block
+  return 1;
+}
+
+void initWiFi() {
+  for (int i = 0; i < 2; i++) {
+    WiFi.begin(wifi_ssid, wifi_pass);
+
+    delay(1000);
+    Serial.println("");
+    Serial.print("Connecting to ");
+    Serial.println(wifi_ssid);
+
+    uint32_t StartTime = millis();
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      if ((StartTime + 5000) < millis()) {
+        break;
+      }
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("");
+      Serial.println("STAIP address: ");
+      Serial.println(WiFi.localIP());
+      Serial.println("");
+      break;
+    }
+  }
+}
+
+void init_tft() {
+  tft.begin();
+  tft.setRotation(0);
+
+  tft.clr();
+  tft.setCursor(0, 0);
+
+  tft.setForeground(ILI9341_GREEN);
+  tft.setFontSize(2);
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
+  initWiFi();
+
+  config.setRotation(2);
+  Camera.configVideoChannel(CHANNEL, config);
+  Camera.videoInit();
+  Camera.channelBegin(CHANNEL);
+  Camera.printInfo();
+
+  pinMode(buttonPin, INPUT);
+  pinMode(LED_B, OUTPUT);
+
+  init_tft();
+  tft.println("GenAIVision_TTS_ReadWordCard");
+
+  TJpgDec.setJpgScale(2);  // The jpeg image can be scaled by a factor of 1, 2, 4, or 8
+  TJpgDec.setCallback(tft_output);
+
+  tft.println("Press Button");
+}
+
+void blink_blue(int count) {
+  for (int i = 0; i < count; i++) {
+    digitalWrite(LED_B, HIGH);
+    delay(500);
+    digitalWrite(LED_B, LOW);
+    delay(500);
+  }
+}
+
+void loop() {
+  if ((digitalRead(buttonPin)) == 1) {
+    tft.setCursor(0, 0);
+    tft.println("Image captured!");
+    blink_blue(2);  // blink
+                    // Camera take image
+
+    Camera.getImage(0, &img_addr, &img_len);
+
+    // JPEG decode image & display
+    TJpgDec.getJpgSize(0, 0, (uint8_t *)img_addr, img_len);
+    TJpgDec.drawJpg(0, 0, (uint8_t *)img_addr, img_len);
+
+    // LLM Vision
+    String prompt_msg_img = "Just say the word in the picture?";
+    String text = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg_img, img_addr, img_len, client);
+    tft.setCursor(0, 0);
+    tft.println(text);
+
+    // Text-To-Speech & play mp3 file
+    tts.googletts(mp3Filename, text, "en-US");
+    //tts.googletts(mp3Filename, text, "zh-TW");
+    delay(500);
+    sdPlayMP3(mp3Filename);
+
+    // LLM Text
+    String prompt_msg = "please make a short sentence with "+text;
+    Serial.println(prompt_msg);
+    String txt = llm.geminitext(Gemini_key, "gemini-2.0-flash", prompt_msg, client);    
+    tft.println(txt);
+
+    // Text-To-Speech & play mp3 file
+    tts.googletts(mp3Filename, txt, "en-US");
+    delay(500);
+    sdPlayMP3(mp3Filename);
+
+    tft.println("Press Button");
+  }
+}
+
+void sdPlayMP3(String filename) {
+  fs.begin();
+  String filepath = String(fs.getRootPath()) + filename;
+  File file = fs.open(filepath, MP3);
+  file.setMp3DigitalVol(128);
+  file.playMp3();
+  file.close();
+  fs.end();
+}
+```
+1.Press button to capture an image <br>
+2.Send Image to Gemini-Vision to read the word card <br>
+3.Send Text1 to Google-TTS and play mp3 file to speak <br>
+4.Send Text1 to Gemini-LLM to make a sentence <br>
+5.Send Text2 to Google-TTS and play mp3 file to speak <br>
+## 專案流程圖
+![](https://github.com/kaoethan/MCU-project/blob/main/images/AIenglish.jpg?raw=true)<br>
+## AI輔助英語教學系統程式碼
+```
+/*
+
+This sketch shows the example of image prompts using APIs, plus text-to-speech using Google Translate API.
+
+openAI platform - openAI vision
+https://platform.openai.com/docs/guides/vision
+
+Google AI Studio - Gemini vision
+https://ai.google.dev/gemini-api/docs/vision
+
+GroqCloud - Llama vision
+https://console.groq.com/docs/overview
+
+Example Guide: https://ameba-arduino-doc.readthedocs.io/en/latest/amebapro2/Example_Guides/Neural%20Network/Generative%20AI%20Vision.html
+Example Guide: https://ameba-arduino-doc.readthedocs.io/en/latest/amebapro2/Example_Guides/Neural%20Network/Text-to-Speech.html
+
+Credit : ChungYi Fu (Kaohsiung, Taiwan)
+
+2025/04/25 讀英文字卡及造句 created by Richard Kuo, NTOU/EE
+*/
+
+String openAI_key = "";                                         // paste your generated openAI API key here
+String Gemini_key = "AIzaSyDo237_AVUq142vMA3m1MvtPczB8fOpE60";  // paste your generated Gemini API key here
+String Llama_key = "";                                          // paste your generated Llama API key here
+char wifi_ssid[] = "hahaha";    // your network SSID (name)
+char wifi_pass[] = "93034570";        // your network password
+
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include "GenAI.h"
+#include "VideoStream.h"
+#include "SPI.h"
+#include "AmebaILI9341.h"
+#include "TJpg_Decoder.h"  // Include the jpeg decoder library
+#include "AmebaFatFS.h"
+
+WiFiSSLClient client;
+GenAI llm;
+GenAI tts;
+
+AmebaFatFS fs;
+String mp3Filename = "test_play_google_tts.mp3";
+
+VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
+#define CHANNEL 0
+
+uint32_t img_addr = 0;
+uint32_t img_len = 0;
+const int buttonPin = 1;  // the number of the pushbutton pin
+
+#define TFT_RESET 5
+#define TFT_DC 4
+#define TFT_CS SPI_SS
+
+AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
+
+#define ILI9341_SPI_FREQUENCY 20000000
+
+bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
+  tft.drawBitmap(x, y, w, h, bitmap);
+
+  // Return 1 to decode next block
+  return 1;
+}
+
+void initWiFi() {
+  for (int i = 0; i < 2; i++) {
+    WiFi.begin(wifi_ssid, wifi_pass);
+
+    delay(1000);
+    Serial.println("");
+    Serial.print("Connecting to ");
+    Serial.println(wifi_ssid);
+
+    uint32_t StartTime = millis();
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      if ((StartTime + 5000) < millis()) {
+        break;
+      }
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("");
+      Serial.println("STAIP address: ");
+      Serial.println(WiFi.localIP());
+      Serial.println("");
+      break;
+    }
+  }
+}
+
+void init_tft() {
+  tft.begin();
+  tft.setRotation(0);
+
+  tft.clr();
+  tft.setCursor(0, 0);
+
+  tft.setForeground(ILI9341_GREEN);
+  tft.setFontSize(2);
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
+  initWiFi();
+
+  config.setRotation(2);
+  Camera.configVideoChannel(CHANNEL, config);
+  Camera.videoInit();
+  Camera.channelBegin(CHANNEL);
+  Camera.printInfo();
+
+  pinMode(buttonPin, INPUT);
+  pinMode(LED_B, OUTPUT);
+
+  init_tft();
+  tft.println("GenAIVision_TTS_ReadWordCard");
+
+  TJpgDec.setJpgScale(2);  // The jpeg image can be scaled by a factor of 1, 2, 4, or 8
+  TJpgDec.setCallback(tft_output);
+
+  tft.println("Press Button");
+}
+
+void blink_blue(int count) {
+  for (int i = 0; i < count; i++) {
+    digitalWrite(LED_B, HIGH);
+    delay(500);
+    digitalWrite(LED_B, LOW);
+    delay(500);
+  }
+}
+
+void loop() {
+  if ((digitalRead(buttonPin)) == 1) {
+    tft.setCursor(0, 0);
+    tft.println("Image captured!");
+    blink_blue(2);  // blink
+                    // Camera take image
+
+    Camera.getImage(0, &img_addr, &img_len);
+
+    // JPEG decode image & display
+    TJpgDec.getJpgSize(0, 0, (uint8_t *)img_addr, img_len);
+    TJpgDec.drawJpg(0, 0, (uint8_t *)img_addr, img_len);
+
+    // LLM Vision
+    String prompt_msg_img = "Just say the word in the picture?";
+    String text = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg_img, img_addr, img_len, client);
+    tft.setCursor(0, 0);
+    tft.println(text);
+
+    // Text-To-Speech & play mp3 file
+    tts.googletts(mp3Filename, text, "en-US");
+    //tts.googletts(mp3Filename, text, "zh-TW");
+    delay(500);
+    sdPlayMP3(mp3Filename);
+
+    // LLM Text
+    String prompt_msg = "please make a short sentence with "+text;
+    Serial.println(prompt_msg);
+    String txt = llm.geminitext(Gemini_key, "gemini-2.0-flash", prompt_msg, client);    
+    tft.println(txt);
+
+    // Text-To-Speech & play mp3 file
+    tts.googletts(mp3Filename, txt, "en-US");
+    delay(500);
+    sdPlayMP3(mp3Filename);
+
+    tft.println("Press Button");
+  }
+}
+
+void sdPlayMP3(String filename) {
+  fs.begin();
+  String filepath = String(fs.getRootPath()) + filename;
+  File file = fs.open(filepath, MP3);
+  file.setMp3DigitalVol(128);
+  file.playMp3();
+  file.close();
+  fs.end();
+}
+```
+## AI輔助英語教學系統程式碼說明
 **1.作業目標(Objective):** <br>
 AI-assisted Educational System <br>
 
