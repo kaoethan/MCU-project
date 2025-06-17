@@ -6,7 +6,7 @@ category: [Lecture]
 tags: [jekyll, ai]
 ---
 # 邊緣計算微控制器原理與應用設計-盲人視覺輔助系統
-This project uses QR code to play audio to assist blind people in navigation.
+This project uses Touch ADC to trigger three different functions
 
 ---
 ## AMB82-mini 硬體介紹
