@@ -6,7 +6,7 @@ category: [Lecture]
 tags: [jekyll, ai]
 ---
 # 邊緣計算微控制器原理與應用設計-AI輔助回收分類系統
-This project uses QR code to play audio to assist blind people in navigation.
+This project uses a camera to take photos and sends them to AI to identify whether they can be recycled.
 
 ---
 ## AMB82-mini 硬體介紹
@@ -454,168 +454,148 @@ void sdPlayMP3(String filename)
 2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用相機拍照的範例)<br>
 3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
 4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
-1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard <br>
-2. play MP3 file<br>
-3.顯示gemini的回覆及播放的MP檔名在顯示器上<br>
+1.Press button to capture an image<br>
+2.Send Image to Google-Gemini and response message<br>
+3.Send Message to Google-TTS and play mp3 file to speak <br>
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
-## arduino程式碼
+![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle3.jpg?raw=true)<br>
+## AI輔助回收分類系統arduino程式碼
 ```
+/*
+ 功能說明：
+ - 按下按鈕拍照
+ - 送圖片至 Gemini Vision 分析並回傳文字
+ - 將文字送 Google TTS 生成語音檔
+ - 播放 MP3 語音
+*/
+
 #include <WiFi.h>
+#include <WiFiUdp.h>
 #include "GenAI.h"
 #include "VideoStream.h"
 #include "AmebaFatFS.h"
-#include "SPI.h"
-#include "AmebaILI9341.h"
 
-// Gemini + WiFi
-String Gemini_key = "AIzaSyDSSwD03fba-626Ilmx27zzU-byCNsWenA"; 
-char wifi_ssid[] = "Yikao";
-char wifi_pass[] = "20030108";
+// === 請填寫以下資訊 ===
+char ssid[] = "你的WiFi名稱";
+const char password[] = "你的WiFi密碼";
+String Gemini_key = "你的Gemini_API_KEY";  // https://makersuite.google.com/app/apikey
 
+// ========== 全域變數 ==========
 WiFiSSLClient client;
 GenAI llm;
+GenAI tts;
 AmebaFatFS fs;
-
-// Camera
 VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
 #define CHANNEL 0
+
+const int buttonPin = 1;
+String prompt_msg = "請問這個回收物是什麼 能不能回收?";
+String mp3Filename = "voice.mp3";
+
 uint32_t img_addr = 0;
 uint32_t img_len = 0;
 
-// Button and LEDs
-const int buttonPin = 1;
-#define LED_BLUE LED_B
-#define LED_GREEN LED_G
-
-// LCD
-#define TFT_RESET 5
-#define TFT_DC 4
-#define TFT_CS SPI_SS
-#define ILI9341_SPI_FREQUENCY 20000000
-AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
-#define LCD_TEXT_SIZE 2
-#define LCD_TEXT_COLOR ILI9341_GREEN
-
+// ====== 初始化 WiFi ======
 void initWiFi() {
-    for (int i = 0; i < 2; i++) {
-        WiFi.begin(wifi_ssid, wifi_pass);
-        delay(1000);
-        Serial.print("Connecting to ");
-        Serial.println(wifi_ssid);
+  for (int i = 0; i < 2; i++) {
+    WiFi.begin(ssid, password);
+    delay(1000);
+    Serial.println("");
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
 
-        uint32_t StartTime = millis();
-        while (WiFi.status() != WL_CONNECTED) {
-            delay(500);
-            if ((StartTime + 5000) < millis()) break;
-        }
-
-        if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("\nSTAIP address: ");
-            Serial.println(WiFi.localIP());
-            break;
-        }
+    uint32_t start = millis();
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      if (millis() - start > 8000) break;
     }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("\nConnected, IP address: ");
+      Serial.println(WiFi.localIP());
+      return;
+    }
+  }
+  Serial.println("WiFi failed.");
 }
 
-void init_TFTLCD() {
-    tft.clr();
-    tft.setCursor(0, 0);
-    tft.setForeground(LCD_TEXT_COLOR);
-    tft.setFontSize(LCD_TEXT_SIZE);
-}
-
+// ====== MP3 播放函式 ======
 void sdPlayMP3(String filename) {
-    String filepath = String(fs.getRootPath()) + filename;
-    if (fs.exists(filepath)) {
-        File file = fs.open(filepath, MP3);
-        file.setMp3DigitalVol(175);
-        file.playMp3();
-        file.close();
-    } else {
-        Serial.println("MP3 檔案不存在：" + filename);
-    }
+  fs.begin();
+  String filepath = String(fs.getRootPath()) + filename;
+  File file = fs.open(filepath, MP3);
+  file.setMp3DigitalVol(120);
+  file.playMp3();
+  file.close();
+  fs.end();
 }
 
 void setup() {
-    Serial.begin(115200);
-    initWiFi();
+  Serial.begin(115200);
 
-    // Camera
-    config.setRotation(0);
-    Camera.configVideoChannel(CHANNEL, config);
-    Camera.videoInit();
-    Camera.channelBegin(CHANNEL);
-    Camera.printInfo();
+  // 初始化 WiFi & 相機 & 按鈕
+  initWiFi();
+  pinMode(buttonPin, INPUT);
+  pinMode(LED_B, OUTPUT);
+  pinMode(LED_G, OUTPUT);
 
-    // SD
-    fs.begin();
-
-    // Button & LED
-    pinMode(buttonPin, INPUT);
-    pinMode(LED_BLUE, OUTPUT);
-    pinMode(LED_GREEN, OUTPUT);
-
-    // LCD
-    SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
-    tft.begin();
-    init_TFTLCD();
-    tft.println("Emotion MP3 Ready!");
-
-    Serial.println("System Ready.");
+  config.setRotation(0);
+  Camera.configVideoChannel(CHANNEL, config);
+  Camera.videoInit();
+  Camera.channelBegin(CHANNEL);
+  Camera.printInfo();
 }
 
 void loop() {
-    if (digitalRead(buttonPin) == HIGH) {
-        // LED Blink
-        for (int i = 0; i < 3; i++) {
-            digitalWrite(LED_BLUE, HIGH);
-            delay(300);
-            digitalWrite(LED_BLUE, LOW);
-            delay(300);
-        }
-
-        // 拍照
-        Camera.getImage(0, &img_addr, &img_len);
-
-        // 使用 Gemini 判斷情緒
-        String prompt_msg = "請判斷圖片中人物的主要情緒，例如happy、sadness、angry、surprise、fear、disgust等，只回覆最接近的一個情緒，用英文回答。";
-        String emotion = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg, img_addr, img_len, client);
-        emotion.trim();
-        emotion.toLowerCase();
-
-        Serial.println("辨識情緒結果：" + emotion);
-
-        // 判斷 MP3 檔名
-        String mp3name;
-        if (emotion.indexOf("happy") != -1) mp3name = "happy.mp3";
-        else if (emotion.indexOf("sadness") != -1) mp3name = "sadness.mp3";
-        else if (emotion.indexOf("surprise") != -1) mp3name = "surprise.mp3";
-        else if (emotion.indexOf("fear") != -1) mp3name = "fear.mp3";
-        else if (emotion.indexOf("angry") != -1) mp3name = "angry.mp3";
-        else if (emotion.indexOf("disgust") != -1) mp3name = "disgust.mp3";
-        else mp3name = "else.mp3";
-
-        Serial.println("播放音樂檔案：" + mp3name);
-
-        // 顯示在 ILI9341 LCD 上
-        init_TFTLCD();
-        tft.println("Emotion: " + emotion);
-        tft.println("MP3: " + mp3name);
-
-        // 播放 MP3
-        digitalWrite(LED_GREEN, HIGH);
-        sdPlayMP3(mp3name);
-        digitalWrite(LED_GREEN, LOW);
-
-        delay(1000);  // debounce
-        while (digitalRead(buttonPin) == HIGH); // 等待按鍵放開
+  if (digitalRead(buttonPin) == 1) {
+    // LED 藍色閃爍 3 次
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(LED_B, HIGH); delay(300);
+      digitalWrite(LED_B, LOW); delay(300);
     }
+
+    // 拍照
+    Camera.getImage(CHANNEL, &img_addr, &img_len);
+
+    // 圖片送至 Gemini Vision
+    String result = llm.geminivision(Gemini_key, "gemini-2.0-pro-vision", prompt_msg, img_addr, img_len, client);
+    Serial.println("[Gemini 回應] " + result);
+
+    // 將文字結果送至 Google TTS 並生成 MP3
+    tts.googletts(mp3Filename, result, "zh-TW");
+    delay(500);
+
+    // 播放 MP3
+    sdPlayMP3(mp3Filename);
+    delay(2000);
+  }
 }
 
 
+
 ```
+## AI輔助回收分類系統程式碼說明
+**1.作業目標(Objective):** <br>
+AI-assisted Recycle System <br>
+👉 使用人工智慧輔助的回收分類系統。主要功能是透過按鈕拍照，AI 辨識影像內容並語音播報，幫助使用者判斷垃圾屬於哪一類。<br>
+
+**2.硬體設備(Hardware):** <br>
+Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
+👉 使用 Realtek AMB82-mini 開發板，它是一款內建攝影機、支援 Wi-Fi、具備 AI 應用能力的微控制器。<br>
+
+**3.功能說明(Features):** <br>
+(一)按下按鈕拍照<br>
+使用板上的按鈕觸發攝影機拍照。<br>
+
+(二)送出照片到 Google Gemini（Vision 模型）分析內容<br>
+利用 Google Gemini Vision AI 判斷照片裡的東西，例如「這是一個寶特瓶」或「這是一張紙」。<br>
+
+(三)把 AI 分析出來的內容，透過 Google TTS 轉成語音並播放<br>
+使用 Google Text-to-Speech (TTS) 將文字說出來，例如「這是一個可以回收的寶特瓶」。<br>
 ## 實作成果展示<br>
-[![情緒感知](https://img.youtube.com/vi/zSsoNETjJEk/0.jpg)](https://www.youtube.com/watch?v=zSsoNETjJEk)
+![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle2.jpeg?raw=true)<br>
+測試使用圖片<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle1.png?raw=true)<br>
+執行結果<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
 
