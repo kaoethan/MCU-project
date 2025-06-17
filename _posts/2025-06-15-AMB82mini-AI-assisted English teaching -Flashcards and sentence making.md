@@ -459,163 +459,51 @@ void sdPlayMP3(String filename)
 3.顯示gemini的回覆及播放的MP檔名在顯示器上<br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
-## arduino程式碼
-```
-#include <WiFi.h>
-#include "GenAI.h"
-#include "VideoStream.h"
-#include "AmebaFatFS.h"
-#include "SPI.h"
-#include "AmebaILI9341.h"
 
-// Gemini + WiFi
-String Gemini_key = "AIzaSyDSSwD03fba-626Ilmx27zzU-byCNsWenA"; 
-char wifi_ssid[] = "Yikao";
-char wifi_pass[] = "20030108";
+## 五、AI輔助英語教學系統程式碼與說明
+**1.作業目標(Objective):** <br>
+AI-assisted Educational System <br>
 
-WiFiSSLClient client;
-GenAI llm;
-AmebaFatFS fs;
+👉 利用 AI 輔助學習，讓開發板透過攝影機辨識「單字卡」，唸出單字，並自動用該單字造句再唸出來，達到語言學習的效果。<br>
 
-// Camera
-VideoSetting config(768, 768, CAM_FPS, VIDEO_JPEG, 1);
-#define CHANNEL 0
-uint32_t img_addr = 0;
-uint32_t img_len = 0;
+**2.硬體設備(Hardware):** <br>
+Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
 
-// Button and LEDs
-const int buttonPin = 1;
-#define LED_BLUE LED_B
-#define LED_GREEN LED_G
+👉 使用 Realtek AMB82-mini 開發板，內建攝影機與 Wi-Fi，適合進行 AI 應用與語音播放。<br>
 
-// LCD
-#define TFT_RESET 5
-#define TFT_DC 4
-#define TFT_CS SPI_SS
-#define ILI9341_SPI_FREQUENCY 20000000
-AmebaILI9341 tft = AmebaILI9341(TFT_CS, TFT_DC, TFT_RESET);
-#define LCD_TEXT_SIZE 2
-#define LCD_TEXT_COLOR ILI9341_GREEN
+**3.功能說明(Features):** <br>
 
-void initWiFi() {
-    for (int i = 0; i < 2; i++) {
-        WiFi.begin(wifi_ssid, wifi_pass);
-        delay(1000);
-        Serial.print("Connecting to ");
-        Serial.println(wifi_ssid);
+本系統設計結合 AI 視覺辨識與語音合成技術，協助使用者透過互動式學習認識單字並練習句子，具備以下五大功能：<br>
 
-        uint32_t StartTime = millis();
-        while (WiFi.status() != WL_CONNECTED) {
-            delay(500);
-            if ((StartTime + 5000) < millis()) break;
-        }
+(一) 按下按鈕拍照<br>
+使用者按下 AMB82-MINI 板上的實體按鈕後，啟動攝影機拍照。此動作觸發後，藍色 LED 會閃爍提示系統正在處理。<br>
 
-        if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("\nSTAIP address: ");
-            Serial.println(WiFi.localIP());
-            break;
-        }
-    }
-}
+(二) 使用 Gemini Vision 辨識卡片上的單字<br>
+拍攝到的圖像會即時傳送至 Google Gemini Vision 進行視覺辨識，AI 會嘗試描述圖片中的物品或文字。例如：<br>
 
-void init_TFTLCD() {
-    tft.clr();
-    tft.setCursor(0, 0);
-    tft.setForeground(LCD_TEXT_COLOR);
-    tft.setFontSize(LCD_TEXT_SIZE);
-}
+「This is a plastic bottle」或「This is a piece of paper」<br>
+此步驟的文字辨識結果稱為 Text1。<br>
 
-void sdPlayMP3(String filename) {
-    String filepath = String(fs.getRootPath()) + filename;
-    if (fs.exists(filepath)) {
-        File file = fs.open(filepath, MP3);
-        file.setMp3DigitalVol(175);
-        file.playMp3();
-        file.close();
-    } else {
-        Serial.println("MP3 檔案不存在：" + filename);
-    }
-}
+(三) 將辨識結果 Text1 交給 Google TTS 播放語音<br>
+辨識結果 Text1 會透過 Google Text-to-Speech (TTS) 服務轉換為語音，並由裝置播放，讓使用者可以「聽到」辨識的文字內容，加強聽覺學習體驗。
+例：<br>
 
-void setup() {
-    Serial.begin(115200);
-    initWiFi();
+播放：「This is a plastic bottle.」<br>
 
-    // Camera
-    config.setRotation(0);
-    Camera.configVideoChannel(CHANNEL, config);
-    Camera.videoInit();
-    Camera.channelBegin(CHANNEL);
-    Camera.printInfo();
+(四) 將 Text1 再送到 Gemini LLM 要求造句<br>
+為提升語言學習效果，系統會將辨識結果 Text1 傳送至 Gemini LLM（大型語言模型）進行擴展應用，請求其根據該單字或物品造出一個英文句子。<br>
+例如：輸入「apple」會回傳：<br>
 
-    // SD
-    fs.begin();
+「I eat an apple every day.」<br>
+此步驟的句子結果稱為 Text2。<br>
 
-    // Button & LED
-    pinMode(buttonPin, INPUT);
-    pinMode(LED_BLUE, OUTPUT);
-    pinMode(LED_GREEN, OUTPUT);
+(五) 將造句結果 Text2 再透過 TTS 播出<br>
+Text2 最後同樣會透過 Google TTS 進行語音播放，使用者能聽到完整句子的正確發音與語調，達成「看 → 聽 → 學 → 說」的學習循環。<br>
+例：<br>
 
-    // LCD
-    SPI.setDefaultFrequency(ILI9341_SPI_FREQUENCY);
-    tft.begin();
-    init_TFTLCD();
-    tft.println("Emotion MP3 Ready!");
-
-    Serial.println("System Ready.");
-}
-
-void loop() {
-    if (digitalRead(buttonPin) == HIGH) {
-        // LED Blink
-        for (int i = 0; i < 3; i++) {
-            digitalWrite(LED_BLUE, HIGH);
-            delay(300);
-            digitalWrite(LED_BLUE, LOW);
-            delay(300);
-        }
-
-        // 拍照
-        Camera.getImage(0, &img_addr, &img_len);
-
-        // 使用 Gemini 判斷情緒
-        String prompt_msg = "請判斷圖片中人物的主要情緒，例如happy、sadness、angry、surprise、fear、disgust等，只回覆最接近的一個情緒，用英文回答。";
-        String emotion = llm.geminivision(Gemini_key, "gemini-2.0-flash", prompt_msg, img_addr, img_len, client);
-        emotion.trim();
-        emotion.toLowerCase();
-
-        Serial.println("辨識情緒結果：" + emotion);
-
-        // 判斷 MP3 檔名
-        String mp3name;
-        if (emotion.indexOf("happy") != -1) mp3name = "happy.mp3";
-        else if (emotion.indexOf("sadness") != -1) mp3name = "sadness.mp3";
-        else if (emotion.indexOf("surprise") != -1) mp3name = "surprise.mp3";
-        else if (emotion.indexOf("fear") != -1) mp3name = "fear.mp3";
-        else if (emotion.indexOf("angry") != -1) mp3name = "angry.mp3";
-        else if (emotion.indexOf("disgust") != -1) mp3name = "disgust.mp3";
-        else mp3name = "else.mp3";
-
-        Serial.println("播放音樂檔案：" + mp3name);
-
-        // 顯示在 ILI9341 LCD 上
-        init_TFTLCD();
-        tft.println("Emotion: " + emotion);
-        tft.println("MP3: " + mp3name);
-
-        // 播放 MP3
-        digitalWrite(LED_GREEN, HIGH);
-        sdPlayMP3(mp3name);
-        digitalWrite(LED_GREEN, LOW);
-
-        delay(1000);  // debounce
-        while (digitalRead(buttonPin) == HIGH); // 等待按鍵放開
-    }
-}
-
-
-```
+播放：「I eat an apple every day.」
 ## 實作成果展示<br>
-[![情緒感知](https://img.youtube.com/vi/zSsoNETjJEk/0.jpg)](https://www.youtube.com/watch?v=zSsoNETjJEk)
+[![AI英語輔助教學](https://img.youtube.com/vi/O__7jqgQOz0/0.jpg)](https://www.youtube.com/watch?v=O__7jqgQOz0)<br>
+請點擊上方縮圖連結影片<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
 
