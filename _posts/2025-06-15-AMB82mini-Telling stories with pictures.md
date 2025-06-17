@@ -628,15 +628,18 @@ void loop() {
 
 **功能流程說明（Function Flow）** <br>
 (一)按下按鈕拍照<br>
-使用 RTC（實時時鐘） 或 millis() 計時器，每 60 秒觸發一次攝影機拍照。<br>
 
 (二)傳送照片給 Gemini Vision 並要求生成童話故事<br>
-將圖片發送給 Google Gemini AI，提示詞要求：「根據這張圖片，請說一段童話故事」，例如：
+將圖片發送給 Google Gemini AI，提示詞要求：「根據這張圖片，請說一段童話故事」，例如：<br>
 
 🔸 “Tell a short fairytale based on this image.”<br>
 
+再請 Gemini 將童話「逐句分段」<br>
+
 (三)將回傳的故事（Text1）交給 Google TTS 並播放<br>
-使用 Google Text-to-Speech 將故事轉為語音，讓裝置播出 AI 創作的童話故事。<br>
+每句使用 Google TTS 將故事轉為語音，讓裝置播出 AI 創作的童話故事。<br>
+(四)TFT LCD 顯示提示與圖片
+
 ## 實作成果展示<br>
 
 [![看圖說故事](https://img.youtube.com/vi/Nd01xuZBOIY/0.jpg)](https://www.youtube.com/watch?v=Nd01xuZBOIY)
