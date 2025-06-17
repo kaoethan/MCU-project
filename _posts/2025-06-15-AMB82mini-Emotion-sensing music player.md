@@ -175,9 +175,98 @@ PAM8403 是一款低功耗、高效率的 D 類音訊放大器晶片，可提供
 | 直徑尺寸           | 常見尺寸為 36mm / 40mm / 長條型                  |
 | 結構類型           | 有紙盆、塑膠盆、防塵網、磁鐵等結構                 |
 | 音圈材質           | 銅線音圈 / 鋁音圈                                |<br>
+## GenAI 程式設計流程
+在使用 GenAI 函式庫（特別針對 AMB82-MINI 開發板）進行程式設計時，整體流程可分為幾個明確的階段，根據功能需求（圖像辨識、語音辨識、文字生成、文字轉語音等）進行模組搭配。以下是 GenAI 程式設計的完整流程說明：<br>
+**1.初始化階段** <br>
+步驟:<br>
+引入必要的頭檔（依功能需求）<br>
+初始化 WiFi（連接網路）<br>
+初始化 GenAI 函式庫與 API Key <br>
+初始化設備（如 Camera、Microphone、RTC、LCD）<br>
+**2.資料擷取階段(視應用)** <br>
+根據應用目標，從不同來源擷取資料: <br>
 
+圖像擷取(Camera):
+```
+GenAI_Camera camera;
+camera.begin();
+camera.capture();  // 擷取一張照片
+```
+語音錄音(Microphone）：
+```
+GenAI_Audio audio;
+audio.begin();
+audio.record(5);  // 錄 5 秒音
+```
+取得時間(RTC):
+```
+RTC.getTimeString();  // 取得目前時間字串
+```
+觸控輸入(ADC）：
+```
+int touchValue = analogRead(TOUCH_PIN);  // 讀取觸控
+```
+**3.呼叫AI模型推論** <br>
+依需求選擇使用Gemini Vision、Text、Audio:<br>
+圖像辨識(Vision):
+```
+String result = GenAI.visionDescription(camera.getImage());
+```
+語音辨識:(Whisper):
+```
+String transcript = GenAI.transcribe(audio.getWavData());
+```
+指令生成、故事生成(Text):
+```
+String prompt = "請用圖片寫一個童話故事";
+String story = GenAI.generateText(prompt);
+```
+搭配RTC:
+```
+String prompt = "現在時間是 " + RTC.getTimeString() + "，請描述天氣狀況";
+String result = GenAI.generateText(prompt);
+```
+**4.輸出結果(視需求)** <br>
+可使用多種方式顯示/播放AI結果:<br>
+顯示在LCD:
+```
+lcd.print(result);
+```
+播放語音(TTS):
+```
+TTS.speak(result);  // 使用 Google TTS 朗讀
+```
+儲存到SD卡(選用):
+```
+file = SD.open("/result.txt");
+file.println(result);
+file.close();
+```
+**5. 控制流程與互動** <br>
+可以使用:<br>
+按鈕 / 觸控切換模式<br>
+定時器 / RTC 控制週期性觸發<br>
+檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放<br>
 ## 編碼設計流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
+## 程式生成提示語設計
+程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。
+
+**為什麼提示語（Prompt）很重要？** <br>
+AI 是根據你提供的文字提示來推論程式碼。提示設計得越清楚，輸出的程式碼越貼近你的需求。<br>
+
+**設計程式生成提示語的 5 大原則:** <br>
+1.明確說明目標功能 <br>
+2.指定語言與平台 <br>
+3.指出輸入 / 輸出規格 <br>
+4.補充使用限制 / 框架 / API <br>
+5.使用範例（很關鍵！）<br>
+**小總結:** <br>
+寫好提示語的重點是：「清楚、具體、有結構」。<br>
+告訴 AI 你要什麼（功能、語言、框架）<br>
+限制不想要的東西<br>
+加入範例與邏輯限制<br>
+越明確，越好用
 ## 提示詞
 **給予範例並提示需求**<br>
 範例<br>
