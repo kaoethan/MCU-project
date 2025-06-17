@@ -410,13 +410,15 @@ void sdPlayMP3(String filename)
 }
 ```
 3) examples > AmebaRTC > Simple_RTC.ino(這是AMB82-MINI 使用 RTC時間的範例)<br>
-4) exmaples> AmebaNN > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
-1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard <br>
-2. play MP3 file<br>
-3.顯示gemini的回覆及播放的MP檔名在顯示器上<br>
+4) examples> AmebaNN> MultimediaAI >GenAISpeech_Gemini(這是AMB82-MINI 使用使用麥克風錄音。將音訊檔案傳送給 Gemini Audio API，進行語音辨識轉成文字。再用 Google TTS（文字轉語音） 播放出來。 )<br>
+Functions
+1. Touch (ADC)<br>
+2. Capture Image send to Gemini and ask about the scene<br>
+3. Send RTC timeinfo to Gemini and return text<br>
+4. Microphone record audio sent to Gemini to return text, then do Text-to-Speech<br>
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
-## arduino程式碼
+![](https://github.com/kaoethan/MCU-project/blob/main/images/ADC.jpg?raw=true)<br>
+## 盲人視覺輔助系統arduino程式碼
 ```
 #include <WiFi.h>
 #include "GenAI.h"
@@ -550,7 +552,7 @@ void sdPlayMP3(String filename) {
 }
 
 ```
-## 盲人視覺輔助系統程式碼與說明
+## 盲人視覺輔助系統程式碼說明
 **1.作業目標：** <br>
 整合以下 4 項功能，建立一個可以進行感測、影像辨識、時間推理、語音互動的智慧系統，使用樣例程式作為參考，完成整合應用程式。<br>
 
