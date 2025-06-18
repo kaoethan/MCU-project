@@ -175,6 +175,7 @@ PAM8403 是一款低功耗、高效率的 D 類音訊放大器晶片，可提供
 | 直徑尺寸           | 常見尺寸為 36mm / 40mm / 長條型                  |
 | 結構類型           | 有紙盆、塑膠盆、防塵網、磁鐵等結構                 |
 | 音圈材質           | 銅線音圈 / 鋁音圈                                |<br>
+
 ## GenAI 程式設計流程
 在使用 GenAI 函式庫（特別針對 AMB82-MINI 開發板）進行程式設計時，整體流程可分為幾個明確的階段，根據功能需求（圖像辨識、語音辨識、文字生成、文字轉語音等）進行模組搭配。以下是 GenAI 程式設計的完整流程說明：<br>
 **1.初始化階段** <br>
@@ -246,11 +247,11 @@ file.close();
 可以使用:<br>
 按鈕 / 觸控切換模式<br>
 定時器 / RTC 控制週期性觸發<br>
-檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放<br>
+檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放
 ## 編碼設計流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)
 ## 程式生成提示語設計
-程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。
+程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。<br>
 
 **為什麼提示語（Prompt）很重要？** <br>
 AI 是根據你提供的文字提示來推論程式碼。提示設計得越清楚，輸出的程式碼越貼近你的需求。<br>
@@ -276,9 +277,9 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 Feature: scan QR code to speak location<br>
 step 1. Scan QR code to get the text (name of the location)<br>
 step 2. Text-to-Speech to get the mp3 of the text<br>
-step 3. SDCardPlayMP3 to play the mp3 to speak the name of the location<br>
+step 3. SDCardPlayMP3 to play the mp3 to speak the name of the location
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)
 ## AI盲人導航系統程式碼說明
 **1.作業目標（Objective）** <br>
 使用 AMB82-mini 開發板，透過攝影機掃描 QR Code，取得地點名稱文字，並透過 Google TTS 將文字轉為語音 MP3，再從 SD 卡播放語音，實現「掃碼即播報地點名稱」的導覽功能。<br>
@@ -437,7 +438,7 @@ void loop() {
 
 ```
 
-## 實作成果展示<br>
+## 實作成果展示
 [![盲人導航系統展示](https://img.youtube.com/vi/vs5l0WUSbJA/0.jpg)](https://www.youtube.com/watch?v=vs5l0WUSbJA)<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
 
