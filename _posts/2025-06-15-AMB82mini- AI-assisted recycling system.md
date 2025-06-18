@@ -251,7 +251,7 @@ file.close();
 ## 編碼設計流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)
 ## 程式生成提示語設計
-程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。
+程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。<br>
 
 **為什麼提示語（Prompt）很重要？** <br>
 AI 是根據你提供的文字提示來推論程式碼。提示設計得越清楚，輸出的程式碼越貼近你的需求。<br>
