@@ -246,9 +246,9 @@ file.close();
 可以使用:<br>
 按鈕 / 觸控切換模式<br>
 定時器 / RTC 控制週期性觸發<br>
-檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放<br>
+檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放
 ## 編碼設計流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)
 ## 程式生成提示語設計
 程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。
 
@@ -412,7 +412,7 @@ void sdPlayMP3(String filename)
 2) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
 1.Press button to capture an image<br>
 2.Send Image to Google-Gemini and response message<br>
-3.Send Message to Google-TTS and play mp3 file to speak <br>
+3.Send Message to Google-TTS and play mp3 file to speak 
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle3.jpg?raw=true)<br>
 ## AI輔助回收分類系統程式碼說明
@@ -432,7 +432,7 @@ Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
 利用 Google Gemini Vision AI 判斷照片裡的東西，例如「這是一個寶特瓶」或「這是一張紙」。<br>
 
 (三)把 AI 分析出來的內容，透過 Google TTS 轉成語音並播放<br>
-使用 Google Text-to-Speech (TTS) 將文字說出來，例如「這是一個可以回收的寶特瓶」。<br>
+使用 Google Text-to-Speech (TTS) 將文字說出來，例如「這是一個可以回收的寶特瓶」。
 ## AI輔助回收分類系統arduino程式碼
 ```
 /*
@@ -548,7 +548,7 @@ void loop() {
 
 ```
 
-## 實作成果展示<br>
+## 實作成果展示
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle2.jpeg?raw=true)<br>
 測試使用圖片<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle1.png?raw=true)<br>
