@@ -267,7 +267,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 限制不想要的東西<br>
 加入範例與邏輯限制<br>
 越明確，越好用
-## 提示詞
+## 專案提示詞
 **給予範例並提示需求**<br>
 範例<br>
 1) examples> AmebaNN> MultimediaAI > GenAIVision(這是AMB82-MINI 上使用 GenAI 範例)<br>
@@ -279,6 +279,24 @@ Function:
  if replied text are different from the previous scene, then store the jpg and text (use date+time for the filename)<br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/372.jpg?raw=true)<br>
+## AI監視錄影系統程式碼說明
+**1.作業目標(Objective):** <br>
+使用 AMB82-mini 開發板，每分鐘自動拍照一次，將照片送給 Gemini Vision 進行場景描述。如果與上一次的場景描述不同，則將該照片與描述儲存起來（使用日期與時間作為檔案名稱）。若與上次相同，則不儲存，節省空間。<br>
+
+**2.開發板與功能（Board & Function）** <br>
+Board: AMB82-mini（Realtek RTL8735B）<br>
+
+👉 支援攝影機拍照、Wi-Fi 上傳、SD 卡儲存、RTC 實時時鐘功能。<br>
+
+**3.功能流程說明（Function Flow）** <br>
+(一)每分鐘自動拍照一次<br>
+使用 RTC（實時時鐘） 或 millis() 計時器，每 60 秒觸發一次攝影機拍照。<br>
+
+(二)照片送出給 Gemini Vision 做場景辨識<br>
+拍下來的影像上傳給 Google Gemini Vision，得到一段文字描述（例如：”A park with people walking.”）<br>
+
+(三)比對新回覆與上一次的文字是否相同<br>
+如果相同 → 忽略，不存圖也不存文字 如果不同 → 儲存該張 JPG 圖片與文字檔，並使用 RTC 的日期與時間命名<br>
 ## AI監視錄影系統arduino程式碼
 ```
 /*
@@ -459,24 +477,7 @@ void loop() {
 
 
 ```
-## AI監視錄影系統程式碼說明
-**1.作業目標(Objective):** <br>
-使用 AMB82-mini 開發板，每分鐘自動拍照一次，將照片送給 Gemini Vision 進行場景描述。如果與上一次的場景描述不同，則將該照片與描述儲存起來（使用日期與時間作為檔案名稱）。若與上次相同，則不儲存，節省空間。<br>
 
-**2.開發板與功能（Board & Function）** <br>
-Board: AMB82-mini（Realtek RTL8735B）<br>
-
-👉 支援攝影機拍照、Wi-Fi 上傳、SD 卡儲存、RTC 實時時鐘功能。<br>
-
-**3.功能流程說明（Function Flow）** <br>
-(一)每分鐘自動拍照一次<br>
-使用 RTC（實時時鐘） 或 millis() 計時器，每 60 秒觸發一次攝影機拍照。<br>
-
-(二)照片送出給 Gemini Vision 做場景辨識<br>
-拍下來的影像上傳給 Google Gemini Vision，得到一段文字描述（例如：”A park with people walking.”）<br>
-
-(三)比對新回覆與上一次的文字是否相同<br>
-如果相同 → 忽略，不存圖也不存文字 如果不同 → 儲存該張 JPG 圖片與文字檔，並使用 RTC 的日期與時間命名<br>
 ## 實作成果展示
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/369.jpg?raw=true)<br>
 **照片對應文字敘述** <br>
