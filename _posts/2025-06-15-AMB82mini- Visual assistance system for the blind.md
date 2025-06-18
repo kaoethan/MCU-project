@@ -246,9 +246,9 @@ file.close();
 可以使用:<br>
 按鈕 / 觸控切換模式<br>
 定時器 / RTC 控制週期性觸發<br>
-檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放<br>
+檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放
 ## 編碼設計流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)
 ## 程式生成提示語設計
 程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。
 
@@ -415,9 +415,9 @@ Functions
 1. Touch (ADC)<br>
 2. Capture Image send to Gemini and ask about the scene<br>
 3. Send RTC timeinfo to Gemini and return text<br>
-4. Microphone record audio sent to Gemini to return text, then do Text-to-Speech<br>
+4. Microphone record audio sent to Gemini to return text, then do Text-to-Speech
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/ADC.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/ADC.jpg?raw=true)
 ## 盲人視覺輔助系統程式碼說明
 **1.作業目標：** <br>
 整合以下 4 項功能，建立一個可以進行感測、影像辨識、時間推理、語音互動的智慧系統，使用樣例程式作為參考，完成整合應用程式。<br>
@@ -597,7 +597,7 @@ void sdPlayMP3(String filename) {
 
 ```
 
-## 實作成果展示<br>
+## 實作成果展示
 編譯失敗待調整<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
 
