@@ -459,7 +459,7 @@ void sdPlayMP3(String filename)
 3.顯示gemini的回覆及播放的MP檔名在顯示器上
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
-![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion2.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion2.jpg?raw=true)
 ## 情緒感知音樂播放器程式碼說明
 **1. 作業目標（Objective）** <br>
 透過 AI 技術辨識使用者當下的情緒，並從 SD 卡中選取一首符合該情緒的音樂播放，以達到情緒療癒、情緒輔助與互動式體驗的效果。
