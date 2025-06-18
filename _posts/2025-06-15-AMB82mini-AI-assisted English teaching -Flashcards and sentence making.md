@@ -603,7 +603,7 @@ void sdPlayMP3(String filename) {
 4.Send Text1 to Gemini-LLM to make a sentence <br>
 5.Send Text2 to Google-TTS and play mp3 file to speak 
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/AIenglish.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/AIenglish.jpg?raw=true)
 ## AI輔助英語教學系統程式碼說明
 **1.作業目標(Objective):** <br>
 AI-assisted Educational System <br>
