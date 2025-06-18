@@ -270,7 +270,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 ## 專案提示詞
 **給予範例並提示需求**<br>
 範例<br>
-1) examples > 03. Analog > AnalogInput.ino(這是AMB82-mini在arduino上AnalogInput的範例,可用來應用於觸控ADC)
+1) examples > 03. Analog > AnalogInput.ino(這是AMB82-mini在arduino上AnalogInput的範例,可用來應用於觸控ADC)<br>
 2) GenAIVision_TTS(這是AMB82-mini在arduino上拍照 → AI 辨識 → TTS 播音的範例)
 ```
 /*
