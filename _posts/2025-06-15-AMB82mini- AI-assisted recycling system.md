@@ -267,7 +267,7 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 限制不想要的東西<br>
 加入範例與邏輯限制<br>
 越明確，越好用
-## 提示詞
+## 專案提示詞
 **給予範例並提示需求**<br>
 範例<br>
 
@@ -415,6 +415,24 @@ void sdPlayMP3(String filename)
 3.Send Message to Google-TTS and play mp3 file to speak <br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle3.jpg?raw=true)<br>
+## AI輔助回收分類系統程式碼說明
+**1.作業目標(Objective):** <br>
+AI-assisted Recycle System <br>
+👉 使用人工智慧輔助的回收分類系統。主要功能是透過按鈕拍照，AI 辨識影像內容並語音播報，幫助使用者判斷垃圾屬於哪一類。<br>
+
+**2.硬體設備(Hardware):** <br>
+Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
+👉 使用 Realtek AMB82-mini 開發板，它是一款內建攝影機、支援 Wi-Fi、具備 AI 應用能力的微控制器。<br>
+
+**3.功能說明(Features):** <br>
+(一)按下按鈕拍照<br>
+使用板上的按鈕觸發攝影機拍照。<br>
+
+(二)送出照片到 Google Gemini（Vision 模型）分析內容<br>
+利用 Google Gemini Vision AI 判斷照片裡的東西，例如「這是一個寶特瓶」或「這是一張紙」。<br>
+
+(三)把 AI 分析出來的內容，透過 Google TTS 轉成語音並播放<br>
+使用 Google Text-to-Speech (TTS) 將文字說出來，例如「這是一個可以回收的寶特瓶」。<br>
 ## AI輔助回收分類系統arduino程式碼
 ```
 /*
@@ -529,24 +547,7 @@ void loop() {
 
 
 ```
-## AI輔助回收分類系統程式碼說明
-**1.作業目標(Objective):** <br>
-AI-assisted Recycle System <br>
-👉 使用人工智慧輔助的回收分類系統。主要功能是透過按鈕拍照，AI 辨識影像內容並語音播報，幫助使用者判斷垃圾屬於哪一類。<br>
 
-**2.硬體設備(Hardware):** <br>
-Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
-👉 使用 Realtek AMB82-mini 開發板，它是一款內建攝影機、支援 Wi-Fi、具備 AI 應用能力的微控制器。<br>
-
-**3.功能說明(Features):** <br>
-(一)按下按鈕拍照<br>
-使用板上的按鈕觸發攝影機拍照。<br>
-
-(二)送出照片到 Google Gemini（Vision 模型）分析內容<br>
-利用 Google Gemini Vision AI 判斷照片裡的東西，例如「這是一個寶特瓶」或「這是一張紙」。<br>
-
-(三)把 AI 分析出來的內容，透過 Google TTS 轉成語音並播放<br>
-使用 Google Text-to-Speech (TTS) 將文字說出來，例如「這是一個可以回收的寶特瓶」。<br>
 ## 實作成果展示<br>
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/recycle2.jpeg?raw=true)<br>
 測試使用圖片<br>
