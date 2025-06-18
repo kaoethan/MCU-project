@@ -248,7 +248,7 @@ file.close();
 定時器 / RTC 控制週期性觸發<br>
 檢查 AI 回傳是否與前次不同，決定是否更新畫面/播放<br>
 ## 編碼設計流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/789.jpg?raw=true)
 ## 程式生成提示語設計
 程式生成提示語設計（Prompts for Code Generation）是一門設計如何清楚、有效地向 AI 模型（如 GPT、Gemini、Copilot 等）描述你想要產生的程式碼的技巧。良好的提示語可以幫助你獲得準確、可執行、易維護的程式碼。
 
@@ -276,9 +276,9 @@ AI 是根據你提供的文字提示來推論程式碼。提示設計得越清�
 Function:
 1) capture image per minute and send to Gemini Vision (1分鐘拍一張)<br>
 2) if replied text has no change, then dont store the jpg and text<br>
- if replied text are different from the previous scene, then store the jpg and text (use date+time for the filename)<br>
+ if replied text are different from the previous scene, then store the jpg and text (use date+time for the filename)
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/372.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/372.jpg?raw=true)
 ## AI監視錄影系統程式碼說明
 **1.作業目標(Objective):** <br>
 使用 AMB82-mini 開發板，每分鐘自動拍照一次，將照片送給 Gemini Vision 進行場景描述。如果與上一次的場景描述不同，則將該照片與描述儲存起來（使用日期與時間作為檔案名稱）。若與上次相同，則不儲存，節省空間。<br>
@@ -296,7 +296,7 @@ Board: AMB82-mini（Realtek RTL8735B）<br>
 拍下來的影像上傳給 Google Gemini Vision，得到一段文字描述（例如：”A park with people walking.”）<br>
 
 (三)比對新回覆與上一次的文字是否相同<br>
-如果相同 → 忽略，不存圖也不存文字 如果不同 → 儲存該張 JPG 圖片與文字檔，並使用 RTC 的日期與時間命名<br>
+如果相同 → 忽略，不存圖也不存文字 如果不同 → 儲存該張 JPG 圖片與文字檔，並使用 RTC 的日期與時間命名
 ## AI監視錄影系統arduino程式碼
 ```
 /*
