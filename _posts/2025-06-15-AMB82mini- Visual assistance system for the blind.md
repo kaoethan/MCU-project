@@ -418,6 +418,50 @@ Functions
 4. Microphone record audio sent to Gemini to return text, then do Text-to-Speech<br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/ADC.jpg?raw=true)<br>
+## 盲人視覺輔助系統程式碼說明
+**1.作業目標：** <br>
+整合以下 4 項功能，建立一個可以進行感測、影像辨識、時間推理、語音互動的智慧系統，使用樣例程式作為參考，完成整合應用程式。<br>
+
+**2.功能說明：** <br>
+(一)觸控（Touch）功能 — ADC 模擬輸入<br>
+使用 類比輸入（Analog Input） 偵測觸控狀態（可用手指接觸金屬片或電阻式觸控感測）。<br>
+範例參考程式：<br>
+examples > 03. Analog > AnalogInput.ino<br>
+用途：透過觸控觸發不同功能模式（例如每觸一次切換功能）。<br>
+
+(二)拍照並詢問 Gemini 場景辨識<br>
+使用攝影機模組拍照，並把圖片傳送給 Google Gemini Vision API。<br>
+從回傳結果中獲得對當前場景的描述。<br>
+範例參考程式：<br>
+GenAIVision_TTS.ino<br>
+用途：辨識你面前的東西，並用文字描述它。<br>
+
+(三)傳送 RTC 時間給 Gemini 並生成文字<br>
+使用 RTC 模組讀取實際時間資訊（年月日與時間）。<br>
+傳送給 Gemini Text API，請它根據時間生成一段有趣的描述或敘述。<br>
+範例參考程式：<br>
+examples > AmebaRTC > Simple_RTC.ino<br>
+用途：像是「現在是幾點鐘」→ Gemini 回答：「早上八點，是個適合喝咖啡的時刻」。<br>
+
+(四)錄音後傳送語音給 Gemini 並轉語音播放<br>
+使用麥克風錄音。<br>
+將音訊檔案傳送給 Gemini Audio API，進行語音辨識轉成文字。<br>
+再用 Google TTS（文字轉語音） 播放出來。<br>
+範例參考程式：<br>
+GenAISpeech.ino<br>
+用途：你說一句話 → 系統將語音轉成文字，再唸出來（語音回應）。<br>
+**3.整合應用建議：** <br>
+你可以設計成 按一次觸控切換一個模式：<br>
+第一次觸控 ➜ 啟動 Vision 場景辨識模式<br>
+第二次觸控 ➜ 啟動 RTC 時間解釋模式<br>
+第三次觸控 ➜ 啟動語音錄音＋轉文字＋TTS 模式<br>
+第四次觸控 ➜ 回到初始或輪迴模式<br>
+**4.實作重點：** <br>
+每個功能模組可以用樣例程式測試完成後再進行整合。<br>
+整合時注意：<br>
+函式的呼叫與切換流程<br>
+LCD 顯示（若有）、MP3 播放、SD 儲存等額外功能配合使用<br>
+各模組之間的資源（如 memory、pin 腳、串流）不可衝突
 ## 盲人視覺輔助系統arduino程式碼
 ```
 #include <WiFi.h>
@@ -552,50 +596,7 @@ void sdPlayMP3(String filename) {
 }
 
 ```
-## 盲人視覺輔助系統程式碼說明
-**1.作業目標：** <br>
-整合以下 4 項功能，建立一個可以進行感測、影像辨識、時間推理、語音互動的智慧系統，使用樣例程式作為參考，完成整合應用程式。<br>
 
-**2.功能說明：** <br>
-(一)觸控（Touch）功能 — ADC 模擬輸入<br>
-使用 類比輸入（Analog Input） 偵測觸控狀態（可用手指接觸金屬片或電阻式觸控感測）。<br>
-範例參考程式：<br>
-examples > 03. Analog > AnalogInput.ino<br>
-用途：透過觸控觸發不同功能模式（例如每觸一次切換功能）。<br>
-
-(二)拍照並詢問 Gemini 場景辨識<br>
-使用攝影機模組拍照，並把圖片傳送給 Google Gemini Vision API。<br>
-從回傳結果中獲得對當前場景的描述。<br>
-範例參考程式：<br>
-GenAIVision_TTS.ino<br>
-用途：辨識你面前的東西，並用文字描述它。<br>
-
-(三)傳送 RTC 時間給 Gemini 並生成文字<br>
-使用 RTC 模組讀取實際時間資訊（年月日與時間）。<br>
-傳送給 Gemini Text API，請它根據時間生成一段有趣的描述或敘述。<br>
-範例參考程式：<br>
-examples > AmebaRTC > Simple_RTC.ino<br>
-用途：像是「現在是幾點鐘」→ Gemini 回答：「早上八點，是個適合喝咖啡的時刻」。<br>
-
-(四)錄音後傳送語音給 Gemini 並轉語音播放<br>
-使用麥克風錄音。<br>
-將音訊檔案傳送給 Gemini Audio API，進行語音辨識轉成文字。<br>
-再用 Google TTS（文字轉語音） 播放出來。<br>
-範例參考程式：<br>
-GenAISpeech.ino<br>
-用途：你說一句話 → 系統將語音轉成文字，再唸出來（語音回應）。<br>
-**3.整合應用建議：** <br>
-你可以設計成 按一次觸控切換一個模式：<br>
-第一次觸控 ➜ 啟動 Vision 場景辨識模式<br>
-第二次觸控 ➜ 啟動 RTC 時間解釋模式<br>
-第三次觸控 ➜ 啟動語音錄音＋轉文字＋TTS 模式<br>
-第四次觸控 ➜ 回到初始或輪迴模式<br>
-**4.實作重點：** <br>
-每個功能模組可以用樣例程式測試完成後再進行整合。<br>
-整合時注意：<br>
-函式的呼叫與切換流程<br>
-LCD 顯示（若有）、MP3 播放、SD 儲存等額外功能配合使用<br>
-各模組之間的資源（如 memory、pin 腳、串流）不可衝突
 ## 實作成果展示<br>
 編譯失敗待調整<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
