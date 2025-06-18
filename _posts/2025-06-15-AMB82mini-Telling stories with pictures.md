@@ -458,6 +458,28 @@ Feature:
 3.Send Text1 to Google-TTS and play mp3 file to speak 
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/story2.jpg?raw=true)<br>
+## 看圖說故事程式碼說明
+**1.作業目標（Objective）** <br>
+使用 AMB82-mini 開發板拍照，將圖片傳送給 Gemini Vision 進行辨識，然後請 AI 根據畫面編寫一段童話故事，再利用 Google TTS 語音播出，讓系統像一位 AI 說故事的機器人。<br>
+
+**2.開發板與功能（Board & Function）** <br>
+開發板：AMB82-mini（Realtek RTL8735B）<br>
+
+👉 這是一塊支援攝影機、Wi-Fi、MP3 播放與 LCD 顯示的智慧開發板，適合用於 AI 與互動式應用。<br>
+
+**功能流程說明（Function Flow）** <br>
+(一)按下按鈕拍照<br>
+
+(二)傳送照片給 Gemini Vision 並要求生成童話故事<br>
+將圖片發送給 Google Gemini AI，提示詞要求：「根據這張圖片，請說一段童話故事」，例如：<br>
+
+🔸 “Tell a short fairytale based on this image.”<br>
+
+再請 Gemini 將童話「逐句分段」<br>
+
+(三)將回傳的故事（Text1）交給 Google TTS 並播放<br>
+每句使用 Google TTS 將故事轉為語音，讓裝置播出 AI 創作的童話故事。<br>
+(四)TFT LCD 顯示提示與圖片
 ## 看圖說故事arduino程式碼
 ```
 #include WiFi.h
@@ -616,28 +638,6 @@ void loop() {
 
 
 ```
-## 看圖說故事程式碼說明
-**1.作業目標（Objective）** <br>
-使用 AMB82-mini 開發板拍照，將圖片傳送給 Gemini Vision 進行辨識，然後請 AI 根據畫面編寫一段童話故事，再利用 Google TTS 語音播出，讓系統像一位 AI 說故事的機器人。<br>
-
-**2.開發板與功能（Board & Function）** <br>
-開發板：AMB82-mini（Realtek RTL8735B）<br>
-
-👉 這是一塊支援攝影機、Wi-Fi、MP3 播放與 LCD 顯示的智慧開發板，適合用於 AI 與互動式應用。<br>
-
-**功能流程說明（Function Flow）** <br>
-(一)按下按鈕拍照<br>
-
-(二)傳送照片給 Gemini Vision 並要求生成童話故事<br>
-將圖片發送給 Google Gemini AI，提示詞要求：「根據這張圖片，請說一段童話故事」，例如：<br>
-
-🔸 “Tell a short fairytale based on this image.”<br>
-
-再請 Gemini 將童話「逐句分段」<br>
-
-(三)將回傳的故事（Text1）交給 Google TTS 並播放<br>
-每句使用 Google TTS 將故事轉為語音，讓裝置播出 AI 創作的童話故事。<br>
-(四)TFT LCD 顯示提示與圖片
 
 ## 實作成果展示<br>
 
