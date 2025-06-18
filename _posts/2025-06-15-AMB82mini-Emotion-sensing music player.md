@@ -454,11 +454,11 @@ void sdPlayMP3(String filename)
 2) exmaples> AmebaMultimedia > SDCardSaveJPEG(這是AMB82-MINI 使用相機拍照的範例)<br>
 3) exmaples> AmebaMultimedia > SDCardPlayMP3(這是AMB82-MINI 使用 SD 卡播放 MP3 音訊的範例)<br>
 4) exmaples> AmebaSPI > LCD_Screen_ILI9341_TFT(這是AMB82-MINI 使用 顯示器的範例)<br>
-1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard <br>
+1. Capture Image and send to Gemini to detect emotion then ask for recommending a song's name that stored in SDcard<br>
 2. play MP3 file<br>
-3.顯示gemini的回覆及播放的MP檔名在顯示器上
+3. 顯示gemini的回覆及播放的MP檔名在顯示器上
 ## 專案流程圖
-![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)<br>
+![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion.jpg?raw=true)
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/emotion2.jpg?raw=true)
 ## 情緒感知音樂播放器程式碼說明
 **1. 作業目標（Objective）** <br>
