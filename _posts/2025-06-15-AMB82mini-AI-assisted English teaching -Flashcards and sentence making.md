@@ -603,6 +603,48 @@ void sdPlayMP3(String filename) {
 5.Send Text2 to Google-TTS and play mp3 file to speak <br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/AIenglish.jpg?raw=true)<br>
+## AI輔助英語教學系統程式碼說明
+**1.作業目標(Objective):** <br>
+AI-assisted Educational System <br>
+
+👉 利用 AI 輔助學習，讓開發板透過攝影機辨識「單字卡」，唸出單字，並自動用該單字造句再唸出來，達到語言學習的效果。<br>
+
+**2.硬體設備(Hardware):** <br>
+Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
+
+👉 使用 Realtek AMB82-mini 開發板，內建攝影機與 Wi-Fi，適合進行 AI 應用與語音播放。<br>
+
+**3.功能說明(Features):** <br>
+
+本系統設計結合 AI 視覺辨識與語音合成技術，協助使用者透過互動式學習認識單字並練習句子，具備以下五大功能：<br>
+
+(一) 按下按鈕拍照<br>
+使用者按下 AMB82-MINI 板上的實體按鈕後，啟動攝影機拍照。此動作觸發後，藍色 LED 會閃爍提示系統正在處理。<br>
+
+(二) 使用 Gemini Vision 辨識卡片上的單字<br>
+拍攝到的圖像會即時傳送至 Google Gemini Vision 進行視覺辨識，AI 會嘗試描述圖片中的物品或文字。例如：<br>
+
+「This is a plastic bottle」或「This is a piece of paper」<br>
+此步驟的文字辨識結果稱為 Text1。<br>
+
+(三) 將辨識結果 Text1 交給 Google TTS 播放語音<br>
+辨識結果 Text1 會透過 Google Text-to-Speech (TTS) 服務轉換為語音，並由裝置播放，讓使用者可以「聽到」辨識的文字內容，加強聽覺學習體驗。
+例：<br>
+
+播放：「This is a plastic bottle.」<br>
+
+(四) 將 Text1 再送到 Gemini LLM 要求造句<br>
+為提升語言學習效果，系統會將辨識結果 Text1 傳送至 Gemini LLM（大型語言模型）進行擴展應用，請求其根據該單字或物品造出一個英文句子。<br>
+例如：輸入「apple」會回傳：<br>
+
+「I eat an apple every day.」<br>
+此步驟的句子結果稱為 Text2。<br>
+
+(五) 將造句結果 Text2 再透過 TTS 播出<br>
+Text2 最後同樣會透過 Google TTS 進行語音播放，使用者能聽到完整句子的正確發音與語調，達成「看 → 聽 → 學 → 說」的學習循環。<br>
+例：<br>
+
+播放：「I eat an apple every day.」
 ## AI輔助英語教學系統程式碼
 ```
 /*
@@ -791,48 +833,7 @@ void sdPlayMP3(String filename) {
   fs.end();
 }
 ```
-## AI輔助英語教學系統程式碼說明
-**1.作業目標(Objective):** <br>
-AI-assisted Educational System <br>
 
-👉 利用 AI 輔助學習，讓開發板透過攝影機辨識「單字卡」，唸出單字，並自動用該單字造句再唸出來，達到語言學習的效果。<br>
-
-**2.硬體設備(Hardware):** <br>
-Development Board: AMB82-mini（MCU: Realtek RTL8735B）<br>
-
-👉 使用 Realtek AMB82-mini 開發板，內建攝影機與 Wi-Fi，適合進行 AI 應用與語音播放。<br>
-
-**3.功能說明(Features):** <br>
-
-本系統設計結合 AI 視覺辨識與語音合成技術，協助使用者透過互動式學習認識單字並練習句子，具備以下五大功能：<br>
-
-(一) 按下按鈕拍照<br>
-使用者按下 AMB82-MINI 板上的實體按鈕後，啟動攝影機拍照。此動作觸發後，藍色 LED 會閃爍提示系統正在處理。<br>
-
-(二) 使用 Gemini Vision 辨識卡片上的單字<br>
-拍攝到的圖像會即時傳送至 Google Gemini Vision 進行視覺辨識，AI 會嘗試描述圖片中的物品或文字。例如：<br>
-
-「This is a plastic bottle」或「This is a piece of paper」<br>
-此步驟的文字辨識結果稱為 Text1。<br>
-
-(三) 將辨識結果 Text1 交給 Google TTS 播放語音<br>
-辨識結果 Text1 會透過 Google Text-to-Speech (TTS) 服務轉換為語音，並由裝置播放，讓使用者可以「聽到」辨識的文字內容，加強聽覺學習體驗。
-例：<br>
-
-播放：「This is a plastic bottle.」<br>
-
-(四) 將 Text1 再送到 Gemini LLM 要求造句<br>
-為提升語言學習效果，系統會將辨識結果 Text1 傳送至 Gemini LLM（大型語言模型）進行擴展應用，請求其根據該單字或物品造出一個英文句子。<br>
-例如：輸入「apple」會回傳：<br>
-
-「I eat an apple every day.」<br>
-此步驟的句子結果稱為 Text2。<br>
-
-(五) 將造句結果 Text2 再透過 TTS 播出<br>
-Text2 最後同樣會透過 Google TTS 進行語音播放，使用者能聽到完整句子的正確發音與語調，達成「看 → 聽 → 學 → 說」的學習循環。<br>
-例：<br>
-
-播放：「I eat an apple every day.」
 ## 實作成果展示<br>
 [![AI英語輔助教學](https://img.youtube.com/vi/O__7jqgQOz0/0.jpg)](https://www.youtube.com/watch?v=O__7jqgQOz0)<br>
 請點擊上方縮圖連結影片<br>
