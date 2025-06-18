@@ -279,6 +279,24 @@ step 2. Text-to-Speech to get the mp3 of the text<br>
 step 3. SDCardPlayMP3 to play the mp3 to speak the name of the location<br>
 ## 專案流程圖
 ![](https://github.com/kaoethan/MCU-project/blob/main/images/blind.jpg?raw=true)<br>
+## AI盲人導航系統程式碼說明
+**1.作業目標（Objective）** <br>
+使用 AMB82-mini 開發板，透過攝影機掃描 QR Code，取得地點名稱文字，並透過 Google TTS 將文字轉為語音 MP3，再從 SD 卡播放語音，實現「掃碼即播報地點名稱」的導覽功能。<br>
+**2.開發板與功能（Board & Function）** <br>
+開發板：AMB82-mini（Realtek RTL8735B）<br>
+👉 這是一塊支援攝影機、Wi-Fi、MP3 播放與 LCD 顯示的智慧開發板，適合用於 AI 與互動式應用。<br>
+**3.功能流程說明（Function Flow）** <br>
+(一)掃描 QR Code 取得地點名稱文字<br>
+使用攝影機辨識 QR Code，取得儲存在 QR code 中的字串（如 “National Palace Museum”）。<br>
+🔍 使用範例：examples > AmebaQR > QRCodeScanner<br>
+
+(二)傳送照片給 Gemini Vision 並要求生成童話故事<br>
+使用 Google TTS 將上述地點名稱文字轉為語音，並儲存為 MP3 檔案（如 museum.mp3）。<br>
+🔊 使用範例：examples > AmebaNN > MultimediaAI > TextToSpeech<br>
+
+(三)從 SD 卡播放剛剛生成的 MP3<br>
+播放儲存在 SD 卡中的 MP3 檔案，播報地點名稱。<br>
+💾 使用範例：examples > AmebaMultimedia > SDCardPlayMP3
 ## AI盲人導航系統arduino程式碼
 ```
 /*
@@ -418,24 +436,7 @@ void loop() {
 
 
 ```
-## AI盲人導航系統程式碼說明
-**1.作業目標（Objective）** <br>
-使用 AMB82-mini 開發板，透過攝影機掃描 QR Code，取得地點名稱文字，並透過 Google TTS 將文字轉為語音 MP3，再從 SD 卡播放語音，實現「掃碼即播報地點名稱」的導覽功能。<br>
-**2.開發板與功能（Board & Function）** <br>
-開發板：AMB82-mini（Realtek RTL8735B）<br>
-👉 這是一塊支援攝影機、Wi-Fi、MP3 播放與 LCD 顯示的智慧開發板，適合用於 AI 與互動式應用。<br>
-**3.功能流程說明（Function Flow）** <br>
-(一)掃描 QR Code 取得地點名稱文字<br>
-使用攝影機辨識 QR Code，取得儲存在 QR code 中的字串（如 “National Palace Museum”）。<br>
-🔍 使用範例：examples > AmebaQR > QRCodeScanner<br>
 
-(二)傳送照片給 Gemini Vision 並要求生成童話故事<br>
-使用 Google TTS 將上述地點名稱文字轉為語音，並儲存為 MP3 檔案（如 museum.mp3）。<br>
-🔊 使用範例：examples > AmebaNN > MultimediaAI > TextToSpeech<br>
-
-(三)從 SD 卡播放剛剛生成的 MP3<br>
-播放儲存在 SD 卡中的 MP3 檔案，播報地點名稱。<br>
-💾 使用範例：examples > AmebaMultimedia > SDCardPlayMP3
 ## 實作成果展示<br>
 [![盲人導航系統展示](https://img.youtube.com/vi/vs5l0WUSbJA/0.jpg)](https://www.youtube.com/watch?v=vs5l0WUSbJA)<br>
 This site was last updated {{ site.time | date: "%B %d, %Y" }}.
